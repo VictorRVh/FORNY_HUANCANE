@@ -1,34 +1,6 @@
 <template>
   <div class="app-container">
-    <header>
-      <h1>Gestión Académica</h1>
-      <nav>
-        <ul>
-          <li @click="verEspecialidades">Especialidades</li>
-          <li @click="verDocentes">Docentes</li>
-          <li @click="matricula">Matricula</li>
-          <li @click="estudiante">Registrar Estudiante</li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-      <div class="image-container">
-        <img src="/img/imagen1.jpg" alt="Descripción 1" class="carousel-image">
-        <div class="carousel-content">
-          <h2>GESTION ACADEMICA CEPRO HUANCANÉ</h2>
-          <p>Mejora la imagen de la institución educativa y su reconocimiento por parte de la sociedad; Aporta un mejor rendimiento financiero; Ofrece un mejor proceso de enseñanza-aprendizaje, con clases de mayor calidad; Fideliza a los alumnos, reduce el abandono y atrae a nuevos interesados, entre otros beneficios.</p>
-        </div>
-      </div>
-      <div class="image-container">
-        <img src="/img/imagen2.jpg" alt="Descripción 2" class="carousel-image">
-        <div class="carousel-content">
-          <h2>IMPORTANCIA</h2>
-          <p> Es necesario crear notoriedad, una buena imagen y posicionamiento. Todo ello le permitirá ganar relevancia y diferenciación basándose en una propuesta de valor única. .</p>
-        </div>
-      </div>
-      <!-- Agrega más imágenes según sea necesario -->
-      <router-view></router-view> <!-- Aquí se mostrará el componente correspondiente a la ruta -->
-    </main>
+         INICIO
   </div>
 </template>
 
