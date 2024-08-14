@@ -1,0 +1,98 @@
+// Importa las funciones de Bootstrap
+@import "node_modules/bootstrap/scss/functions";
+// src/assets/custom.scss
+// src/assets/custom.scss
+
+
+// Importar todo Bootstrap (opcional, si deseas importar todo)
+// Importar las funciones de Bootstrap
+// Define tus colores personalizados
+//$primary: #921733; // Azul oscuro
+$primary: #921733; // Azul oscur
+$secondary: #92173359; // Verde
+$accent: #FBBF24; // Amarillo
+$custom-gray-light: #D1D5DB;
+$custom-gray: #6B7280;
+$custom-gray-dark: #374151;
+
+// Importa las variables y Bootstrap
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/bootstrap";
+
+body {
+    overflow: hidden;
+}
+
+
+// Estilos para la tabla
+/* src/assets/custom-table-styles.css */
+
+.custom-table-wrapper {
+    max-height: calc(80vh - 40px);
+    overflow-y: auto;
+    /* Asegura que haya scroll vertical si es necesario */
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    font-size: 20px;
+}
+
+.shadow-hover:hover {
+    filter: grayscale(100%);
+}
+
+
+//table
+.thead_table {
+    position: fixed;
+    width: 100%;
+    color: #fff;
+    padding: 10px;
+}
+
+//para deslizar al hacer click en editar
+
+
+
+
+
+// Estilos para el tbody de la tabla
+
+
+
+//estilos para los modales 
+.modal {
+    display: none;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    margin: 10% auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.error_required {
+    position: absolute;
+    color: red;
+    margin-top: 2.2rem;
+    left: 12px;
+    font-size: 13px;
+}
+
+
+
+@function abs-percent($value) {
+    @return abs($value);
+}

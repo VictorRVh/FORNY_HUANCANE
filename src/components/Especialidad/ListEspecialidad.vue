@@ -1,0 +1,116 @@
+<template>
+  <div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-primary">ESPECIALIDADES</h1>
+      <div class="d-flex">
+        <input 
+          type="text" 
+          v-model="searchTerm" 
+          placeholder="Buscar por Programa de Estudio" 
+          class="form-control me-2"
+        />
+        <router-link class="" to="/Especialidad/Add">
+          <button class="btn btn-primary" >Agregar Especialidad</button >
+        </router-link>
+        
+      </div>
+    </div>
+    <div v-if="filteredEspecialidades.length">
+      <div class="row">
+        <div v-for="(especialidad, index) in filteredEspecialidades" :key="index" class="col-md-4 mb-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="card-title text-secondary">{{ especialidad.programa_estudio }}</h2>
+              <div class="card-text">
+                <p><strong>Docente:</strong> {{ especialidad.docente_id }}</p>
+                <p><strong>Ciclo Formativo:</strong> {{ especialidad.ciclo_formativo }}</p>
+                <p><strong>Total de Horas:</strong> {{ especialidad.hora_semanal }}</p>
+                <p><strong>Modalidad:</strong> {{ especialidad.modalidad }}</p>
+                <p><strong>Descripción:</strong> {{ especialidad.descripcion_especialidad }}</p>
+                <p><strong>Periodo Académico:</strong> {{ especialidad.periodo_academico }}</p>
+                <p><strong>Sección:</strong> {{ especialidad.seccion }}</p>
+              </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <button class="btn btn-success me-2" @click="imprimirNomina(index, 'normal')">Nómina Normal</button>
+              <button class="btn btn-success me-2" @click="imprimirNomina(index, 'ugel')">Nómina UGEL</button>
+              <button class="btn btn-warning me-2" @click="editarEspecialidad(index)"><icono icon="edit" /></button>
+              <button class="btn btn-outline-primary" @click="eliminarEspecialidad(index)"><icono icon="trash" /></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No hay especialidades registradas.</p>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      especialidades: [],
+      searchTerm: '' // Valor para el término de búsqueda
+    };
+  },
+  computed: {
+    filteredEspecialidades() {
+      return this.especialidades.filter(especialidad =>
+        especialidad.programa_estudio.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+  },
+  methods: {
+    fetchEspecialidades() {
+      const url = `http://127.0.0.1:8000/api/especialidad`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          this.especialidades = data.especialidades;
+        })
+        .catch(error => {
+          console.error('Error fetching especialidades:', error);
+        });
+    },
+    editarEspecialidad(index) {
+      alert(`Editando especialidad: ${this.filteredEspecialidades[index].programa_estudio}`);
+    },
+    eliminarEspecialidad(index) {
+      if (confirm(`¿Seguro que deseas eliminar la especialidad ${this.filteredEspecialidades[index].programa_estudio}?`)) {
+        this.filteredEspecialidades.splice(index, 1);
+      }
+    },
+    agregarEspecialidad() {
+      this.$router.push({ name: 'nomina' });
+    },
+    imprimirNomina(index, formato) {
+      alert(`Imprimiendo nómina de la especialidad ${this.filteredEspecialidades[index].programa_estudio} en formato ${formato}`);
+      // Aquí podrías implementar la lógica para generar e imprimir el archivo PDF en el formato deseado
+    }
+  },
+  mounted() {
+    this.fetchEspecialidades(); // Cargar especialidades cuando el componente se monta
+  }
+};
+</script>
+
+<style scoped>
+h1 {
+  color: #007bff;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #343a40;
+}
+
+.card-footer {
+  background-color: #f8f9fa;
+}
+
+
+</style>
