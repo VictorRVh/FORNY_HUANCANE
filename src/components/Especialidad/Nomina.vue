@@ -6,7 +6,7 @@
       <!-- Botón para enviar el formulario -->
       <button @click="submitForm" class="action-button">GUARDAR</button>
     </div>
-    <table class="data-table ">
+    <table class="data-table">
       <tr>
         <th><label for="programa_estudio">Programa de Estudios:</label></th>
         <td colspan="3">
@@ -176,7 +176,9 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  overflow-y: scroll;
   border-radius: 8px;
+  height: 80vh;
 
 }
 

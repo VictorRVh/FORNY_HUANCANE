@@ -1,29 +1,47 @@
 <template>
   <div class="container mt-5">
+    <div class="search-estudent input-group w-25">
+      <input
+        v-model="estudianteCodigo"
+        type="text"
+        class="form-control"
+        placeholder="DNI de estudiante"
+      />
+      <button class="input-group-text btn btn-primary" @click="fetchEstudiante">
+        Buscar
+      </button>
+    </div>
+
     <h2 class="text-center mb-4 text-primary">Registrar Matrícula</h2>
 
-    <Form @submit.prevent="submitMatricula" class="form_estudent border p-3">
+    <Form @submit="submitMatricula" class="form_estudent border p-3">
       <!-- Estudiante -->
       <div class="mb-3">
-        <label for="estudianteId" class="form-label">Estudiante</label>
+        <label for="nameEst" class="form-label">Estudiante</label>
         <Field
-          v-model="estudianteCodigo"
-          @input="fetchEstudiante"
-          name="estudianteCodigo"
+          v-model="matricula.estudianteNombre"
+          name="estudianteNombre"
           type="text"
-          id="estudianteId"
+          id="nameEst"
           class="form-control"
-          placeholder="Ingrese código de estudiante (solo números)"
+          placeholder="Nombre del estudiante"
+          readonly
         />
-        <div v-if="estudiante" class="mt-3">
-          <p><strong>Nombre:</strong> {{ estudiante.nombre }} {{ estudiante.apellidoPaterno }} {{ estudiante.apellidoMaterno }}</p>
-          <p><strong>Turno:</strong> {{ estudiante.turno }}</p>
-          <p><strong>Condición:</strong> {{ estudiante.condicion }}</p>
-        </div>
       </div>
-
       <!-- Turno, Créditos y Condición -->
       <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="estudianteId" class="form-label">Código Estudiante</label>
+          <Field
+            v-model="matricula.codigo"
+            name="estudianteCodigo"
+            type="text"
+            id="estudianteId"
+            class="form-control"
+            placeholder="Código"
+            readonly
+          />
+        </div>
         <div class="col-md-4">
           <label for="turnoId" class="form-label">Turno</label>
           <Field
@@ -33,23 +51,11 @@
             id="turnoId"
             class="form-select"
           >
-            <option value="">Seleccionar Turno</option>
-            <!-- Opciones de turnos se deben cargar desde la base de datos -->
+            <option value="" disabled>Seleccionar Turno</option>
+            <option value="N">Noche</option>
+            <option value="T">Tarde</option>
+            <option value="M">Mañana</option>
           </Field>
-        </div>
-
-        <div class="col-md-4">
-          <label for="creditos" class="form-label">Créditos</label>
-          <Field
-            v-model.number="matricula.creditos"
-            name="creditos"
-            type="number"
-            id="creditos"
-            class="form-control"
-            placeholder="Número de créditos"
-            min="1"
-            max="6"
-          />
         </div>
 
         <div class="col-md-4">
@@ -61,8 +67,9 @@
             id="condicionId"
             class="form-select"
           >
-            <option value="">Seleccionar Condición</option>
-            <!-- Opciones de condiciones se deben cargar desde la base de datos -->
+            <option value="" disabled>Seleccionar Condición</option>
+            <option value="G">Gratuita</option>
+            <option value="B">Becado</option>
           </Field>
         </div>
       </div>
@@ -76,9 +83,16 @@
           name="especialidadId"
           id="especialidadId"
           class="form-select"
+          @change="updateDocente"
         >
           <option value="">Seleccionar Especialidad</option>
-          <!-- Opciones de especialidades se deben cargar desde la base de datos -->
+          <option
+            v-for="especialidad in especialidades"
+            :key="especialidad.id"
+            :value="especialidad.programa_estudio"
+          >
+            {{ especialidad.programa_estudio }}
+          </option>
         </Field>
       </div>
 
@@ -86,15 +100,14 @@
       <div class="mb-3">
         <label for="docenteId" class="form-label">Docente</label>
         <Field
-          as="select"
           v-model="matricula.docenteId"
           name="docenteId"
+          type="text"
           id="docenteId"
-          class="form-select"
-        >
-          <option value="">Seleccionar Docente</option>
-          <!-- Opciones de docentes se deben cargar desde la base de datos -->
-        </Field>
+          class="form-control"
+          placeholder="docente"
+          readonly
+        />
       </div>
 
       <!-- Número de Recibo -->
@@ -111,7 +124,9 @@
       </div>
 
       <div class="btn_submit text-center">
-        <button type="submit" class="btn btn-outline-primary pl-5 w-25">Registrar Matrícula</button>
+        <button type="submit" class="btn btn-outline-primary pl-5 w-50">
+          Registrar Matrícula
+        </button>
       </div>
     </Form>
   </div>
@@ -119,6 +134,7 @@
 
 <script>
 import { Form, Field } from "vee-validate";
+import Swal from "sweetalert2";
 
 export default {
   components: {
@@ -128,54 +144,124 @@ export default {
   data() {
     return {
       matricula: {
-        estudianteId: null,
+        estudianteNombre: "",
+        codigo: "",
         especialidadId: null,
         turnoId: null,
         docenteId: null,
-        creditos: 1,
         condicionId: null,
-        nroRecibo: '',
+        nroRecibo: "",
       },
-      estudianteCodigo: '',
-      estudiante: null,
+      estudianteCodigo: "",
+      especialidades: [],
     };
   },
+  mounted() {
+    this.fetchEspecialidades();
+  },
   methods: {
-    async fetchEstudiante() {
+    fetchEstudiante() {
       if (this.estudianteCodigo.length > 0) {
-        try {
-          const response = await fetch(`/api/estudiantes/${this.estudianteCodigo}`);
-          if (response.ok) {
-            this.estudiante = await response.json();
-          } else {
+        fetch(`http://127.0.0.1:8000/api/students/${this.estudianteCodigo}`)
+          .then((response) => {
+            if (!response.ok) {
+              return Promise.reject("Estudiante no encontrado");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            this.estudiante = data.Estudiante;
+            this.showEstudianteAlert(this.estudiante);
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: error,
+            });
             this.estudiante = null;
-          }
-        } catch (error) {
-          console.error('Error fetching estudiante:', error);
-          this.estudiante = null;
-        }
+          });
       } else {
+        Swal.fire({
+          icon: "warning",
+          title: "DNI vacío",
+          text: "Por favor, ingrese un DNI de estudiante.",
+        });
         this.estudiante = null;
       }
     },
-    async submitMatricula() {
-      try {
-        const response = await fetch('/api/registrar-matricula', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(this.matricula),
-        });
-
-        if (response.ok) {
-          alert('Matrícula registrada con éxito y PDF generado.');
+    showEstudianteAlert(estudiante) {
+      Swal.fire({
+        title: `Nombre: ${estudiante.nombre}`,
+        text: `DNI: ${estudiante.dni}\n¿Desea cargar los datos de este estudiante?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Aceptar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.matricula.estudianteNombre = `${estudiante.nombre} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`;
+          this.matricula.codigo = `${estudiante.codigo_estudiante}`;
         } else {
-          console.error('Error al registrar matrícula');
+          this.estudianteCodigo = ""; // Limpiar el código de estudiante si se cancela
         }
-      } catch (error) {
-        console.error('Error al registrar matrícula:', error);
+      });
+    },
+    fetchEspecialidades() {
+      fetch("http://127.0.0.1:8000/api/especialidad")
+        .then((response) => response.json())
+        .then((data) => {
+          this.especialidades = data.especialidades;
+        })
+        .catch((error) => {
+          console.error("Error al obtener las especialidades:", error);
+        });
+    },
+    updateDocente() {
+      const selectedEspecialidad = this.especialidades.find(
+        (especialidad) => especialidad.programa_estudio === this.matricula.especialidadId
+      );
+      if (selectedEspecialidad) {
+        this.matricula.docenteId = selectedEspecialidad.docente_id;
       }
+    },
+    submitMatricula() {
+      let submidata = {
+        "codigo_estudiante_id": this.matricula.codigo,
+        "turno": this.matricula.turnoId,
+        "condicion": this.matricula.condicionId,
+        "programa_estudio_id": this.matricula.especialidadId,
+        "numero_recibo": this.matricula.nroRecibo,
+      };
+      console.log(submidata)
+      fetch("http://127.0.0.1:8000/api/matricula", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submidata),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return Promise.reject("Error al registrar matrícula");
+          }
+        })
+        .then(() => {
+          Swal.fire({
+            icon: "success",
+            title: "Éxito",
+            text: "Matrícula registrada con éxito y PDF generado.",
+          });
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error,
+          });
+        });
     },
   },
 };
@@ -186,5 +272,4 @@ export default {
   width: 500px;
   margin: auto;
 }
-
 </style>
