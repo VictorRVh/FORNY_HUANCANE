@@ -1,12 +1,7 @@
 <template>
   <div class="container mt-5">
     <div class="search-estudent input-group w-25">
-      <input
-        v-model="estudianteCodigo"
-        type="text"
-        class="form-control"
-        placeholder="DNI de estudiante"
-      />
+      <input v-model="estudianteCodigo" type="text" class="form-control" placeholder="DNI de estudiante" />
       <button class="input-group-text btn btn-primary" @click="fetchEstudiante">
         Buscar
       </button>
@@ -18,39 +13,19 @@
       <!-- Estudiante -->
       <div class="mb-3">
         <label for="nameEst" class="form-label">Estudiante</label>
-        <Field
-          v-model="matricula.estudianteNombre"
-          name="estudianteNombre"
-          type="text"
-          id="nameEst"
-          class="form-control"
-          placeholder="Nombre del estudiante"
-          readonly
-        />
+        <Field v-model="matricula.estudianteNombre" name="estudianteNombre" type="text" id="nameEst"
+          class="form-control" placeholder="Nombre del estudiante" readonly />
       </div>
       <!-- Turno, Créditos y Condición -->
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="estudianteId" class="form-label">Código Estudiante</label>
-          <Field
-            v-model="matricula.codigo"
-            name="estudianteCodigo"
-            type="text"
-            id="estudianteId"
-            class="form-control"
-            placeholder="Código"
-            readonly
-          />
+          <Field v-model="matricula.codigo" name="estudianteCodigo" type="text" id="estudianteId" class="form-control"
+            placeholder="Código" readonly />
         </div>
         <div class="col-md-4">
           <label for="turnoId" class="form-label">Turno</label>
-          <Field
-            as="select"
-            v-model="matricula.turnoId"
-            name="turnoId"
-            id="turnoId"
-            class="form-select"
-          >
+          <Field as="select" v-model="matricula.turnoId" name="turnoId" id="turnoId" class="form-select">
             <option value="" disabled>Seleccionar Turno</option>
             <option value="N">Noche</option>
             <option value="T">Tarde</option>
@@ -60,13 +35,7 @@
 
         <div class="col-md-4">
           <label for="condicionId" class="form-label">Condición</label>
-          <Field
-            as="select"
-            v-model="matricula.condicionId"
-            name="condicionId"
-            id="condicionId"
-            class="form-select"
-          >
+          <Field as="select" v-model="matricula.condicionId" name="condicionId" id="condicionId" class="form-select">
             <option value="" disabled>Seleccionar Condición</option>
             <option value="G">Gratuita</option>
             <option value="B">Becado</option>
@@ -77,20 +46,10 @@
       <!-- Especialidad -->
       <div class="mb-3">
         <label for="especialidadId" class="form-label">Especialidad</label>
-        <Field
-          as="select"
-          v-model="matricula.especialidadId"
-          name="especialidadId"
-          id="especialidadId"
-          class="form-select"
-          @change="updateDocente"
-        >
+        <Field as="select" v-model="matricula.especialidadId" name="especialidadId" id="especialidadId"
+          class="form-select" @change="updateDocente">
           <option value="">Seleccionar Especialidad</option>
-          <option
-            v-for="especialidad in especialidades"
-            :key="especialidad.id"
-            :value="especialidad.programa_estudio"
-          >
+          <option v-for="especialidad in especialidades" :key="especialidad.id" :value="especialidad.programa_estudio">
             {{ especialidad.programa_estudio }}
           </option>
         </Field>
@@ -99,28 +58,15 @@
       <!-- Docente -->
       <div class="mb-3">
         <label for="docenteId" class="form-label">Docente</label>
-        <Field
-          v-model="matricula.docenteId"
-          name="docenteId"
-          type="text"
-          id="docenteId"
-          class="form-control"
-          placeholder="docente"
-          readonly
-        />
+        <Field v-model="matricula.docenteId" name="docenteId" type="text" id="docenteId" class="form-control"
+          placeholder="docente" readonly />
       </div>
 
       <!-- Número de Recibo -->
       <div class="mb-3">
         <label for="nroRecibo" class="form-label">Número de Recibo</label>
-        <Field
-          v-model="matricula.nroRecibo"
-          name="nroRecibo"
-          type="text"
-          id="nroRecibo"
-          class="form-control"
-          placeholder="Número del recibo"
-        />
+        <Field v-model="matricula.nroRecibo" name="nroRecibo" type="text" id="nroRecibo" class="form-control"
+          placeholder="Número del recibo" />
       </div>
 
       <div class="btn_submit text-center">
@@ -135,6 +81,8 @@
 <script>
 import { Form, Field } from "vee-validate";
 import Swal from "sweetalert2";
+
+import { generatePdfMatricula } from '../pdf/generatePdf';
 
 export default {
   components: {
@@ -241,9 +189,23 @@ export default {
         },
         body: JSON.stringify(submidata),
       })
-        .then((response) => {
+        .then(async (response) => {
           if (response.ok) {
-            return response.json();
+
+            const codigo = this.matricula.codigo;
+            const url = `http://127.0.0.1:8000/api/fichaMatricula/${codigo}`;
+
+            try {
+              const response = await fetch(url);
+              const data = await response.json();
+
+              generatePdfMatricula(data)
+              
+            } catch (error) {
+              console.error('Error fetching estudiantes:', error);
+            }
+
+
           } else {
             return Promise.reject("Error al registrar matrícula");
           }
