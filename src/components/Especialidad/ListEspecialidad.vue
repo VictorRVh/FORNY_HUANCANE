@@ -97,6 +97,10 @@ export default {
 </script>
 
 <style scoped>
+.container{
+  overflow-y: scroll;
+  height: 80vh;
+}
 h1 {
   color: #007bff;
   font-size: 1.8rem;

@@ -57,7 +57,7 @@ export default {
         @mouseleave="toggleDropdown('Docente', false)"
       >
         <router-link class="nav-link nav_item text-primary" to="/Docente">
-          <icono icon="bookmark" class="h4" />
+          <icono icon="user-secret" class="h4" />
           <p>DOCENTE</p>
         </router-link>
         <ul class="dropdown-menu nav_aside bg-primary" v-show="showDropdown.FACULTAD">
