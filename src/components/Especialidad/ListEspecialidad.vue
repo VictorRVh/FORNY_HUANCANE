@@ -3,16 +3,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h1 class="text-primary">ESPECIALIDADES</h1>
       <div class="d-flex">
-        <input 
-          type="text" 
-          v-model="searchTerm" 
-          placeholder="Buscar por Programa de Estudio" 
-          class="form-control me-2"
-        />
+        <input type="text" v-model="searchTerm" placeholder="Buscar por Programa de Estudio"
+          class="form-control me-2" />
         <router-link class="" to="/Especialidad/Add">
-          <button class="btn btn-primary" >Agregar Especialidad</button >
+          <button class="btn btn-primary">Agregar Especialidad</button>
         </router-link>
-        
+
       </div>
     </div>
     <div v-if="filteredEspecialidades.length">
@@ -33,9 +29,13 @@
             </div>
             <div class="card-footer d-flex justify-content-between">
               <button class="btn btn-success me-2" @click="imprimirNomina(index, 'normal')">Nómina Normal</button>
-              <button class="btn btn-success me-2" @click="imprimirNomina(index, 'ugel')">Nómina UGEL</button>
-              <button class="btn btn-warning me-2" @click="editarEspecialidad(index)"><icono icon="edit" /></button>
-              <button class="btn btn-outline-primary" @click="eliminarEspecialidad(index)"><icono icon="trash" /></button>
+              <button class="btn btn-success me-2" @click="imprimirNominaUgel(index, 'ugel')">Nómina UGEL</button>
+              <button class="btn btn-warning me-2" @click="editarEspecialidad(index)">
+                <icono icon="edit" />
+              </button>
+              <button class="btn btn-outline-primary" @click="eliminarEspecialidad(index)">
+                <icono icon="trash" />
+              </button>
             </div>
           </div>
         </div>
@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import { generateNominaPDF, reporteNominaUgel } from '../pdf/generatePdf';
+
 export default {
   data() {
     return {
@@ -85,10 +87,35 @@ export default {
     agregarEspecialidad() {
       this.$router.push({ name: 'nomina' });
     },
-    imprimirNomina(index, formato) {
-      alert(`Imprimiendo nómina de la especialidad ${this.filteredEspecialidades[index].programa_estudio} en formato ${formato}`);
-      // Aquí podrías implementar la lógica para generar e imprimir el archivo PDF en el formato deseado
-    }
+    async imprimirNomina(index, formato) {
+      
+      const especialidadId = this.filteredEspecialidades[index].programa_estudio;
+      const url = `http://127.0.0.1:8000/api/especialidad/${especialidadId}/estudiantes`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        generateNominaPDF(data);
+
+      } catch (error) {
+        console.error('Error fetching estudiantes:', error);
+      }
+    },
+    async imprimirNominaUgel(index, formato) {
+      
+      const especialidadId = this.filteredEspecialidades[index].programa_estudio;
+      const url = `http://127.0.0.1:8000/api/registro/estudiantes/${especialidadId}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        reporteNominaUgel(data)
+      } catch (error) {
+        console.error('Error fetching estudiantes:', error);
+      }
+    },
   },
   mounted() {
     this.fetchEspecialidades(); // Cargar especialidades cuando el componente se monta
@@ -115,6 +142,4 @@ h1 {
 .card-footer {
   background-color: #f8f9fa;
 }
-
-
 </style>
