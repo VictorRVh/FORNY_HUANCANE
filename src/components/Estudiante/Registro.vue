@@ -2,45 +2,45 @@
   <div class="container mt-5">
     <h2 class="text-center mb-4 text-primary">Registrar Estudiante</h2>
 
-    <Form @submit="submitEstudiante" class="form_estudent border p-3">
+    <form @submit.prevent="submitEstudiante" class="form_estudent border p-3">
       <!-- Nombre -->
       <div class="mb-3">
         <label for="nombre" class="form-label">Nombre</label>
-        <Field
+        <input
           v-model="estudiante.nombre"
-          name="nombre"
           type="text"
           id="nombre"
           class="form-control"
           placeholder="Nombre completo del estudiante"
-          rules="required"
+          @input="formatInput('nombre')"
         />
+        <span v-if="errores.nombre" class="text-danger">{{ errores.nombre }}</span>
       </div>
 
       <!-- Apellido Paterno -->
       <div class="mb-3">
         <label for="apellidoPaterno" class="form-label">Apellido Paterno</label>
-        <Field
+        <input
           v-model="estudiante.apellido_paterno"
-          name="apellido_paterno"
           type="text"
           id="apellidoPaterno"
           class="form-control"
           placeholder="Apellido Paterno"
-          rules="required"
+          @input="formatInput('apellido_paterno')"
         />
+        <span v-if="errores.apellido_paterno" class="text-danger">{{ errores.apellido_paterno }}</span>
       </div>
 
       <!-- Apellido Materno -->
       <div class="mb-3">
         <label for="apellidoMaterno" class="form-label">Apellido Materno</label>
-        <Field
+        <input
           v-model="estudiante.apellido_materno"
-          name="apellido_materno"
           type="text"
           id="apellidoMaterno"
           class="form-control"
           placeholder="Apellido Materno"
+          @input="formatInput('apellido_materno')"
         />
       </div>
 
@@ -48,42 +48,40 @@
       <div class="row mb-3">
         <div class="col-md-3">
           <label for="dni" class="form-label">DNI</label>
-          <Field
+          <input
             v-model="estudiante.dni"
-            name="dni"
             type="text"
             id="dni"
             class="form-control"
             placeholder="DNI del estudiante"
-            rules="required"
+            @input="formatInput('dni')"
           />
+          <span v-if="errores.dni" class="text-danger">{{ errores.dni }}</span>
         </div>
 
         <div class="col-md-4">
           <label for="sexo" class="form-label">Sexo</label>
-          <Field
-            as="select"
+          <select
             v-model="estudiante.sexo"
-            name="sexo"
             id="sexo"
             class="form-select"
-            rules="required"
           >
             <option value="" disabled>Seleccionar</option>
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
-          </Field>
+          </select>
+          <span v-if="errores.sexo" class="text-danger">{{ errores.sexo }}</span>
         </div>
 
         <div class="col-md-5">
           <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-          <Field
+          <input
             v-model="estudiante.fecha_nacimiento"
-            name="fecha_nacimiento"
             type="date"
             id="fechaNacimiento"
             class="form-control"
           />
+          <span v-if="errores.fecha_nacimiento" class="text-danger">{{ errores.fecha_nacimiento }}</span>
         </div>
       </div>
 
@@ -91,27 +89,27 @@
       <div class="row mb-3">
         <div class="col-md-6">
           <label for="celular" class="form-label">Celular</label>
-          <Field
+          <input
             v-model="estudiante.celular"
-            name="celular"
             type="text"
             id="celular"
             class="form-control"
             placeholder="Número de celular"
+            @input="formatInput('celular')"
           />
+          <span v-if="errores.celular" class="text-danger">{{ errores.celular }}</span>
         </div>
 
         <div class="col-md-6">
           <label for="correo" class="form-label">Correo</label>
-          <Field
+          <input
             v-model="estudiante.correo"
-            name="correo"
             type="email"
             id="correo"
             class="form-control"
             placeholder="Correo electrónico"
-            rules="required"
           />
+          <span v-if="errores.correo" class="text-danger">{{ errores.correo }}</span>
         </div>
       </div>
 
@@ -132,72 +130,120 @@
           />
         </div>
       </div>
-    </Form>
+    </form>
   </div>
 </template>
 
 <script>
-import { Form, Field, useForm } from "vee-validate";
-import { localize } from "@vee-validate/i18n";
 import Swal from "sweetalert2";
 
-
 export default {
-  components: {
-    Form,
-    Field,
-  },
   data() {
     return {
       estudiante: {
-        id: "", // Este campo se llenará con el ID generado por la base de datos después de la creación.
-        codigo_estudiante: "", // Este campo se llenará con el código de estudiante generado automáticamente.
+        id: "",
+        codigo_estudiante: "",
         nombre: "",
         apellido_paterno: "",
         apellido_materno: "",
         dni: "",
-        sexo: "", // 'M' para Masculino y 'F' para Femenino
+        sexo: "",
         celular: "",
         correo: "",
-        fecha_nacimiento: "", // Añadido el campo de fecha de nacimiento
+        fecha_nacimiento: "",
       },
+      errores: {}
     };
   },
   methods: {
-    submitEstudiante() {
-      fetch("http://127.0.0.1:8000/api/students", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(this.estudiante),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Error al registrar el estudiante"); // Manejo de errores HTTP
-          }
-          return response.json();
-        })
-        .then((datosRespuesta) => {
-          console.log(datosRespuesta);
-          this.alert_save(); // Asegúrate de que esta función esté definida en tu componente
+    formatInput(field) {
+      this.estudiante[field] = this.estudiante[field]
+        .replace(/[^a-zA-Z0-9\s]/g, "")
+        .toUpperCase();
+    },
+    validarFormulario() {
+      this.errores = {};
 
-          // Limpiar los campos del formulario, excepto el código de estudiante
-          this.estudiante = {
-            nombre: "",
-            apellido_paterno: "",
-            apellido_materno: "",
-            dni: "",
-            sexo: "", // Restablecer al valor inicial
-            celular: "",
-            correo: "",
-            fecha_nacimiento: "",
-          };
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert(`Error: ${error.message}`);
+      if (!this.estudiante.nombre) {
+        this.errores.nombre = "El nombre es obligatorio.";
+      }
+      if (!this.estudiante.apellido_paterno) {
+        this.errores.apellido_paterno = "El apellido paterno es obligatorio.";
+      }
+      if (!this.estudiante.dni) {
+        this.errores.dni = "El DNI es obligatorio.";
+      } else if (this.estudiante.dni.length !== 8) {
+        this.errores.dni = "El DNI debe tener 8 caracteres.";
+      }
+      if (!this.estudiante.sexo) {
+        this.errores.sexo = "El sexo es obligatorio.";
+      }
+      if (!this.estudiante.celular) {
+        this.errores.celular = "El número de celular es obligatorio.";
+      } else if (this.estudiante.celular.length !== 9) {
+        this.errores.celular = "El número de celular debe tener 9 caracteres.";
+      }
+      if (!this.estudiante.correo) {
+        this.errores.correo = "El correo es obligatorio.";
+      } else if (!this.validarEmail(this.estudiante.correo)) {
+        this.errores.correo = "El formato del correo no es válido.";
+      }
+      if (!this.estudiante.fecha_nacimiento) {
+        this.errores.fecha_nacimiento = "La fecha de nacimiento es obligatoria.";
+      }
+
+      return Object.keys(this.errores).length === 0;
+    },
+    validarEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    },
+    async submitEstudiante() {
+      if (!this.validarFormulario()) {
+        Swal.fire({
+          icon: "warning",
+          title: "Formulario incompleto",
+          text: "Por favor, complete todos los campos obligatorios.",
         });
+        return;
+      }
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/students", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.estudiante),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al registrar el estudiante");
+        }
+
+        const datosRespuesta = await response.json();
+        this.alert_save();
+        this.estudiante.codigo_estudiante = datosRespuesta.codigo_estudiante;
+        this.estudiante.id = datosRespuesta.id;
+
+        // Limpiar los campos del formulario, excepto el código de estudiante
+        this.estudiante.nombre = "";
+        this.estudiante.apellido_paterno = "";
+        this.estudiante.apellido_materno = "";
+        this.estudiante.dni = "";
+        this.estudiante.sexo = "";
+        this.estudiante.celular = "";
+        this.estudiante.correo = "";
+        this.estudiante.fecha_nacimiento = "";
+
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message || "Ocurrió un error al procesar la solicitud.",
+        });
+      }
     },
     alert_save() {
       Swal.fire({
@@ -213,7 +259,6 @@ export default {
 </script>
 
 <style scoped>
-/* Puedes ajustar los estilos aquí si es necesario */
 .form_estudent {
   width: 500px;
   margin: auto;

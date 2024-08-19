@@ -5,7 +5,7 @@
       </div>
 
       <div class="controlador-container">
-          <h3 class="controlador-title">Controlador de Horas y Créditos</h3>
+          <h3 class="controlador-title">Controlador</h3>
           <p>Total Horas: {{ total_horas }}</p>
           <p>Total Créditos: {{ total_creditos }}</p>
           <p>Fecha de Inicio: {{ unidades.length ? unidades[0].fecha_inicio : 'N/A' }}</p>

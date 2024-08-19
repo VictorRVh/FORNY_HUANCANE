@@ -31,7 +31,7 @@
       <div class="form-row">
         <div class="form-group half-width">
           <label for="dni" class="form-label">DNI</label>
-          <input v-model="docente.dni" type="text" id="dni" class="form-input" placeholder="DNI del docente" required />
+          <input v-model="docente.dni" type="text" id="dni" class="form-input" placeholder="DNI del docente" required maxlength="8" minlength="8" />
         </div>
 
         <div class="form-group half-width">
@@ -48,7 +48,7 @@
       <div class="form-row">
         <div class="form-group half-width">
           <label for="celular" class="form-label">Celular</label>
-          <input v-model="docente.celular" type="text" id="celular" class="form-input" placeholder="Número de celular" />
+          <input v-model="docente.celular" type="text" id="celular" class="form-input" placeholder="Número de celular" required maxlength="9" minlength="9" />
         </div>
 
         <div class="form-group half-width">
@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       docente: {
-        id: '', // Este campo se llenará con el ID generado por la base de datos después de la creación.
+        id: '',
         nombre: '',
         apellido_paterno: '',
         apellido_materno: '',
@@ -80,25 +80,48 @@ export default {
   },
   methods: {
     async submitDocente() {
-      try {
-        console.log(this.docente); // Verifica los datos antes de la solicitud
-        const response = await fetch('http://127.0.0.1:8000/api/teacher                                                                                                                                              ', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.docente)
-      });
+      // Verificación manual de que todos los campos requeridos estén llenos
+      if (!this.docente.nombre || !this.docente.apellido_paterno || !this.docente.dni || 
+          !this.docente.sexo || !this.docente.celular || !this.docente.correo) {
+        alert("Por favor, complete todos los campos obligatorios.");
+        return;
+      }
 
+      // Validación de longitud del DNI y celular
+      if (this.docente.dni.length !== 8) {
+        alert("El DNI debe tener 8 caracteres.");
+        return;
+      }
+      if (this.docente.celular.length !== 9) {
+        alert("El número de celular debe tener 9 caracteres.");
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/teacher', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.docente)
+        });
 
         if (!response.ok) {
           const errorData = await response.json();
-          const errorMessage = errorData.message || 'Error desconocido al registrar el docente';
-          throw new Error(errorMessage); // Lanzar el mensaje de error para el catch
+          
+          // Manejo de errores específicos
+          if (errorData.error === 'DNI_DUPLICATE') {
+            alert('El DNI ya está registrado.');
+          } else if (errorData.error === 'EMAIL_DUPLICATE') {
+            alert('El correo ya está registrado.');
+          } else {
+            const errorMessage = errorData.message || 'Error desconocido al registrar el docente';
+            throw new Error(errorMessage);
+          }
+          return;
         }
 
         const result = await response.json();
-        console.log(result); // Verifica la respuesta del backend
         this.docente.id = result.id;
 
         // Limpiar el formulario
@@ -116,7 +139,7 @@ export default {
         alert('Docente registrado exitosamente');
       } catch (error) {
         console.error('Error:', error);
-        alert(`Error: ${error.message}`); // Mostrar el mensaje de error en lugar del objeto
+        alert(`Error: ${error.message}`);
       }
     }
   }

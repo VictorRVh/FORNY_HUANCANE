@@ -125,7 +125,7 @@
                 <a
                   href="#"
                   class="btn btn-outline-danger m-2"
-                  @click="eliminar(docente.id)"
+                  @click="eliminar(docente.dni)"
                 >
                   <icono icon="minus-circle" />
                 </a>
@@ -146,7 +146,7 @@ export default {
   data() {
     return {
       filterField: "",
-      internalShowModal: false, // Renombrado
+      internalShowModal: false,
       showDropdown: {},
       docentes: [],
       docentesFiltrados: [],
@@ -164,7 +164,7 @@ export default {
       fetch("http://127.0.0.1:8000/api/teacher")
         .then((response) => response.json())
         .then((data) => {
-          this.docentes = data.teachers; // Accede al array de docentes en la respuesta
+          this.docentes = data.teachers;
           this.docentesFiltrados = this.docentes;
         })
         .catch((error) => {
@@ -185,19 +185,10 @@ export default {
       // Implementar funcionalidad de exportar
     },
     modificar(campo, docente) {
-      // Implementar funcionalidad de modificación
-    },
-    eliminar(id) {
-      // Implementar funcionalidad de eliminación
-    },
-    toggleDropdown(id, state) {
-      this.showDropdown[id] = state;
-    },
-    modificar(dato, docente) {
       let modifyName = "";
       let valueData = "";
 
-      switch (dato) {
+      switch (campo) {
         case "nombre":
           modifyName = "Nombre";
           valueData = docente.nombre;
@@ -219,7 +210,6 @@ export default {
           valueData = docente.correo;
           break;
         case "editar_todo":
-          // Aquí podrías hacer un modal que permita editar todos los campos
           this.editarTodo(docente);
           return;
       }
@@ -232,21 +222,46 @@ export default {
         confirmButtonText: "Modificar",
         showLoaderOnConfirm: true,
         preConfirm: (nuevoValor) => {
-          return this.actualizarDocente(docente.dni, { [dato]: nuevoValor });
+          nuevoValor = nuevoValor.trim().toUpperCase();  // Convierte a mayúsculas y elimina espacios innecesarios
+
+          if (!nuevoValor) {  // Verifica si el campo está vacío
+            Swal.showValidationMessage(`Debe ingresar un ${modifyName}`);
+            return false;
+          }
+
+          if (!this.validarTextoSinCaracteresEspeciales(nuevoValor)) {  // Verifica si el valor contiene caracteres especiales
+            Swal.showValidationMessage(`No se permiten caracteres especiales en ${modifyName}`);
+            return false;
+          }
+
+          if (nuevoValor === valueData.toUpperCase()) {  // Verifica si el valor es el mismo que ya existe
+            Swal.showValidationMessage(`${modifyName} repetido!`);
+            return false;
+          }
+
+          return this.actualizarDocente(docente.dni, { [campo]: nuevoValor });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       }).then((result) => {
         if (result.isConfirmed) {
+          // Actualiza la interfaz de usuario con el nuevo valor
+          Object.assign(docente, { [campo]: result.value });
           Swal.fire({
             title: `${modifyName} actualizado!`,
             icon: "success",
           });
+          // Refresca la lista de docentes
+          this.obtenerDocentes();
         }
       });
     },
 
+    validarTextoSinCaracteresEspeciales(texto) {
+      const regex = /^[a-zA-Z0-9\s]*$/; // Solo permite letras, números y espacios
+      return regex.test(texto);
+    },
+
     actualizarDocente(dni, datosActualizados) {
-      console.log(dni)
       return fetch(`http://127.0.0.1:8000/api/teacher/${dni}`, {
         method: "PATCH",
         headers: {
@@ -254,23 +269,22 @@ export default {
         },
         body: JSON.stringify(datosActualizados),
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === 200) {
-            // Actualiza los datos del docente en tu frontend
-            Object.assign(this.docente, datosActualizados);
-            console.log("actulizado")
-          } else {
-            throw new Error(data.message || "Error al actualizar");
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Error al actualizar");
           }
+          return response.json();
+        })
+        .then((data) => {
+          return data;
         })
         .catch((error) => {
-          Swal.showValidationMessage(`Error: ${error}`);
+          Swal.showValidationMessage(`Error: ${error.message}`);
         });
     },
 
     editarTodo(docente) {
-      // Aquí puedes abrir un modal o similar para editar todos los campos
+      // Implementa un modal o similar para editar todos los campos
     },
     verDocente(dni) {
       fetch(`http://127.0.0.1:8000/api/teacher/${dni}`)
@@ -291,10 +305,8 @@ export default {
                       <table class="table table-bordered">
                         <tbody>
                           <tr>
-                            <td ><strong>Nombre</strong></td>
-                            <td>${docente.nombre} ${docente.apellido_paterno} ${
-                docente.apellido_materno
-              }</td>
+                            <td><strong>Nombre</strong></td>
+                            <td>${docente.nombre.toUpperCase()} ${docente.apellido_paterno.toUpperCase()} ${docente.apellido_materno.toUpperCase()}</td>
                           </tr>
                           <tr>
                             <td><strong>DNI</strong></td>
@@ -324,8 +336,7 @@ export default {
                       </table>
                     </div>
                   </div>
-                </div>
-              `,
+                </div>`,
               icon: "info",
               confirmButtonText: "Cerrar",
             });
@@ -342,9 +353,45 @@ export default {
           });
         });
     },
+    eliminar(id) {
+      Swal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esto!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminarlo!",
+        cancelButtonText: "Cancelar",
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return fetch(`http://127.0.0.1:8000/api/teacher/${id}`, {
+            method: "DELETE",
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Error al eliminar");
+              }
+              return response.json();
+            })
+            .catch((error) => {
+              Swal.showValidationMessage(`Error: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire("Eliminado!", "El docente ha sido eliminado.", "success");
+          this.obtenerDocentes(); // Refresca la lista de docentes
+        }
+      });
+    },
+    toggleDropdown(id, state) {
+      this.showDropdown[id] = state;
+    },
   },
 };
 </script>
+
+
 
 <style scoped>
 .custom-table-wrapper {
