@@ -1,5 +1,5 @@
 <template>
-  <h2 class="text-primary">Docente</h2>
+  <h2 class="text-primary">Estudiante</h2>
 
   <div class="table-responsive overflow-hidden mt-4">
     <div class="d-flex justify-content-between align-items-center">
@@ -13,16 +13,45 @@
         />
         <button class="btn btn-primary">Buscar</button>
       </div>
-      <div class="input-group mb-3 w-50"></div>
+      <div class="input-group mb-3 w-50">
+        <div class="ml-5 mr-5">
+          <label for="especialidadId" class="form-label">Especialidad</label>
+          <Field
+            as="select"
+            v-model="especialidadId.especialidad"
+            name="especialidadId"
+            id="especialidadId"
+            class="form-select"
+            @change="updateDocente()"
+          >
+            <option value="">Seleccionar Especialidad</option>
+            <option
+              v-for="especialidad in estudianteEspecialidad"
+              :key="especialidad.id"
+              :value="especialidad.programa_estudio"
+            >
+              {{ especialidad.programa_estudio }}
+            </option>
+          </Field>
+        </div>
+        <div>
+          <label for="turnoId" class="form-label">Turno</label>
+          <Field as="select" v-model="especialidadId.turno" name="turnoId" id="turnoId" class="form-select"  @change="updateDocente">
+            <option value="" disabled>Seleccionar Turno</option>
+            <option value="M">Mañana</option>
+            <option value="T">Tarde</option>
+          </Field>
+        </div>
+      </div>
       <div class="input-group mb-3 w-25 d-flex">
         <button class="btn btn-primary" @click="openModal">Agregar</button>
         <Modal
-          :key="docenteSeleccionado"
+          :key="estudianteSeleccionado"
           :showModal="showModal"
           :editMode="editMode"
-          :docenteToEdit="docenteSeleccionado"
+          :estudianteToEdit="estudianteSeleccionado"
           @close-modal="closeModal"
-          @docenteActualizado="obtenerDocentes"
+          @estudianteActualizado="obtenerestudiantes"
         />
 
         <button class="btn btn-primary ml-5" @click="exportar">
@@ -46,45 +75,45 @@
           </thead>
           <tbody>
             <tr
-              v-for="(docente, index) in docentes"
-              :key="docente.id"
-              v-show="filter(docente)"
+              v-for="(estudiante, index) in estudiantes"
+              :key="estudiante.id"
+              v-show="filter(estudiante)"
             >
               <td class="text-center">{{ index + 1 }}</td>
-              <td class="text-center">{{ docente.nombre }}</td>
+              <td class="text-center">{{ estudiante.nombre }}</td>
               <td class="text-center">
-                {{ docente.apellido_paterno }} {{ docente.apellido_materno }}
+                {{ estudiante.apellido_paterno }} {{ estudiante.apellido_materno }}
               </td>
-              <td class="text-center">{{ docente.dni }}</td>
-              <td class="text-center">{{ docente.celular }}</td>
+              <td class="text-center">{{ estudiante.dni }}</td>
+              <td class="text-center">{{ estudiante.celular }}</td>
 
               <td class="text-center btn_edit">
                 <a
                   href="#"
                   class="btn btn-outline-primary m-2"
-                  @click.prevent="verDocente(docente.dni)"
+                  @click.prevent="verestudiante(estudiante.dni)"
                 >
                   <icono icon="eye" />
                 </a>
                 <a
                   href="#"
                   class="btn btn-outline-success m-2 dropdown-toggle"
-                  @mouseenter="toggleDropdown(docente.id, true)"
-                  @mouseleave="toggleDropdown(docente.id, false)"
+                  @mouseenter="toggleDropdown(estudiante.id, true)"
+                  @mouseleave="toggleDropdown(estudiante.id, false)"
                 >
                   <icono icon="edit" />
                 </a>
                 <ul
                   class="dropdown-menu"
-                  :class="{ show: showDropdown[docente.id] }"
-                  @mouseenter="toggleDropdown(docente.id, true)"
-                  @mouseleave="toggleDropdown(docente.id, false)"
+                  :class="{ show: showDropdown[estudiante.id] }"
+                  @mouseenter="toggleDropdown(estudiante.id, true)"
+                  @mouseleave="toggleDropdown(estudiante.id, false)"
                 >
                   <li>
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click="modificar('nombre', docente)"
+                      @click="modificar('nombre', estudiante)"
                       >Nombre</a
                     >
                   </li>
@@ -92,7 +121,7 @@
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click="modificar('apellido_paterno', docente)"
+                      @click="modificar('apellido_paterno', estudiante)"
                       >Apellido Paterno</a
                     >
                   </li>
@@ -100,7 +129,7 @@
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click="modificar('apellido_materno', docente)"
+                      @click="modificar('apellido_materno', estudiante)"
                       >Apellido Materno</a
                     >
                   </li>
@@ -108,7 +137,7 @@
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click="modificar('celular', docente)"
+                      @click="modificar('celular', estudiante)"
                       >Celular</a
                     >
                   </li>
@@ -116,12 +145,12 @@
                     <a
                       class="dropdown-item"
                       href="#"
-                      @click="modificar('correo', docente)"
+                      @click="modificar('correo', estudiante)"
                       >Correo</a
                     >
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#" @click="modificarAll(docente)"
+                    <a class="dropdown-item" href="#" @click="modificarAll(estudiante)"
                       >Editar Todo</a
                     >
                   </li>
@@ -130,7 +159,7 @@
                 <a
                   href="#"
                   class="btn btn-outline-danger m-2"
-                  @click="showDeleteConfirmation(docente.dni)"
+                  @click="showDeleteConfirmation(estudiante.dni)"
                 >
                   <icono icon="trash" />
                 </a>
@@ -153,42 +182,80 @@ export default {
       filterField: "",
       showModal: false, // Renombrado
       showDropdown: {},
-      docentes: [],
+      estudianteEspecialidad:[],
+      especialidadId:{
+        turno: null,
+        especialidad :null
+      },
+      estudiantes: [],
       editMode: false,
-      docentesFiltrados: [],
-      docenteSeleccionado: null, // Agregado para almacenar el docente seleccionado
+      estudiantesFiltrados: [],
+      estudianteSeleccionado: null, // Agregado para almacenar el estudiante seleccionado
     };
   },
 
   created() {
-    this.obtenerDocentes();
+    this.obtenerestudiantes();
+    this.obtenerEspecialidad();
   },
   components: {
     Modal,
   },
+
   methods: {
-    obtenerDocentes() {
-      fetch("http://127.0.0.1:8000/api/teacher")
+    obtenerestudiantes() {
+      fetch("http://127.0.0.1:8000/api/students")
         .then((response) => response.json())
         .then((data) => {
-          this.docentes = data.teachers; // Accede al array de docentes en la respuesta
-          this.docentesFiltrados = this.docentes;
+          this.estudiantes = data.Estudiantes; // Accede al array de estudiantes en la respuesta
+          this.estudiantesFiltrados = this.estudiantes;
         })
         .catch((error) => {
-          console.error("Error al obtener los docentes:", error);
+          console.error("Error al obtener los estudiantes:", error);
         });
     },
-    filter(docente) {
-      return docente.nombre.toLowerCase().includes(this.filterField.toLowerCase());
+    obtenerEspecialidad(){
+      fetch("http://127.0.0.1:8000/api/especialidad")
+        .then((response) => response.json())
+        .then((data) => {
+          this.estudianteEspecialidad = data.especialidades; // Accede al array de estudiantes en la respuesta
+         
+        })
+        .catch((error) => {
+          console.error("Error al obtener los estudiantes:", error);
+        });
+    },
+    updateDocente(){
+       
+     if(this.especialidadId.especialidad.length>0 && this.especialidadId.turno.length>0 ){
+           
+       fetch(`http://127.0.0.1:8000/api/especialidad/${this.especialidadId.especialidad}/students/${this.especialidadId.turno}`)
+        .then((response) => response.json())
+        .then((data) => {
+          this.estudiantes = data.estudiantes; // Accede al array de estudiantes en la respuesta
+          console.log(this.estudiantes)
+          //this.estudiantesFiltrados = this.estudiantes;
+        })
+        .catch((error) => {
+          console.error("Error al obtener los estudiantes:", error);
+        });
+
+     }
+
+      
+    },
+
+    filter(estudiante) {
+      return estudiante.nombre.toLowerCase().includes(this.filterField.toLowerCase());
     },
     openModal() {
       this.editMode = false; // Modo de agregar
-      this.docenteSeleccionado = null; // Limpia los datos
+      this.estudianteSeleccionado = null; // Limpia los datos
       this.showModal = true;
     },
     closeModal() {
       this.showModal = false;
-      this.obtenerDocentes();
+      this.obtenerestudiantes();
     },
     exportar() {
       // Implementar funcionalidad de exportar
@@ -197,7 +264,7 @@ export default {
       const regex = /^[a-zA-Z0-9áéíóúÁÉÍÓÚüÜ\s]*$/; // Solo permite letras, números y espacios
       return regex.test(texto);
     },
-    modificar(campo, docente) {
+    modificar(campo, estudiante) {
       const campoMap = {
         nombre: "Nombre",
         apellido_paterno: "Apellido Paterno",
@@ -207,7 +274,7 @@ export default {
       };
 
       let modifyName = campoMap[campo];
-      let valueData = docente[campo];
+      let valueData = estudiante[campo];
 
       Swal.fire({
         title: `Editar ${modifyName}`,
@@ -236,8 +303,8 @@ export default {
             return false;
           }
 
-          // Usar la función `actualizarDocente` para actualizar el docente
-          return this.actualizarDocente(docente.dni, { [campo]: nuevoValor });
+          // Usar la función `actualizarestudiante` para actualizar el estudiante
+          return this.actualizarestudiante(estudiante.dni, { [campo]: nuevoValor });
         },
         allowOutsideClick: () => !Swal.isLoading(),
       }).then((result) => {
@@ -249,8 +316,8 @@ export default {
         }
       });
     },
-    actualizarDocente(dni, datosActualizados) {
-      return fetch(`http://127.0.0.1:8000/api/teacher/${dni}`, {
+    actualizarestudiante(dni, datosActualizados) {
+      return fetch(`http://127.0.0.1:8000/api/students/${dni}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -260,7 +327,7 @@ export default {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === 200) {
-            this.obtenerDocentes(); // Suponiendo que tienes una función para obtener la lista de docentes actualizada
+            this.obtenerestudiantes(); // Suponiendo que tienes una función para obtener la lista de estudiantes actualizada
           } else {
             throw new Error(data.message || "Error al actualizar");
           }
@@ -270,15 +337,15 @@ export default {
         });
     },
     eliminar(dni) {
-      return fetch(`http://127.0.0.1:8000/api/teacher/${dni}`, {
+      return fetch(`http://127.0.0.1:8000/api/students/${dni}`, {
         method: "DELETE",
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error("Error al eliminar el docente");
+            throw new Error("Error al eliminar el estudiante");
           }
-          Swal.fire("Eliminado!", "El docente ha sido eliminado.", "success");
-          this.obtenerDocentes(); // Actualiza la lista después de eliminar
+          Swal.fire("Eliminado!", "El estudiante ha sido eliminado.", "success");
+          this.obtenerestudiantes(); // Actualiza la lista después de eliminar
         })
         .catch((error) => {
           Swal.fire("Error", error.message, "error");
@@ -300,36 +367,36 @@ export default {
       });
     },
 
-    modificarAll(docente) {
-    this.editMode = true; // Establece el modo de edición
-    this.showModal = true; // Abre el modal
-    fetch(`http://127.0.0.1:8000/api/teacher/${docente.dni}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === 200) {
-          this.docenteSeleccionado = data.teacher; // Llena el formulario con los datos del docente
-          console.log(this.docenteSeleccionado)
-        } else {
-          console.error("Docente no encontrado");
-        }
-      })
-      .catch((error) => {
-        console.error("Error al obtener el docente:", error);
-      });
-  },
-    verDocente(dni) {
-      fetch(`http://127.0.0.1:8000/api/teacher/${dni}`)
+    modificarAll(estudiante) {
+      this.editMode = true; // Establece el modo de edición
+      this.showModal = true; // Abre el modal
+      fetch(`http://127.0.0.1:8000/api/students/${estudiante.dni}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 200) {
+            this.estudianteSeleccionado = data.Estudiante; // Llena el formulario con los datos del estudiante
+            console.log(this.estudianteSeleccionado);
+          } else {
+            console.error("estudiante no encontrado");
+          }
+        })
+        .catch((error) => {
+          console.error("Error al obtener el estudiante:", error);
+        });
+    },
+    verestudiante(dni) {
+      fetch(`http://127.0.0.1:8000/api/students/${dni}`)
         .then((response) => {
           if (!response.ok) {
-            throw new Error("Error al obtener los datos del docente");
+            throw new Error("Error al obtener los datos del estudiante");
           }
           return response.json();
         })
         .then((data) => {
           if (data.status === 200) {
-            const docente = data.teacher;
+            const estudiante = data.Estudiante;
             Swal.fire({
-              title: `Información de ${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}`,
+              title: `Información de ${estudiante.nombre} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`,
               html: `<div class="container">
                   <div class="row">
                     <div class="col-lg-12">
@@ -337,33 +404,35 @@ export default {
                         <tbody>
                           <tr>
                             <td ><strong>Nombre</strong></td>
-                            <td>${docente.nombre} ${docente.apellido_paterno} ${
-                docente.apellido_materno
+                            <td>${estudiante.nombre} ${estudiante.apellido_paterno} ${
+                estudiante.apellido_materno
               }</td>
                           </tr>
                           <tr>
                             <td><strong>DNI</strong></td>
-                            <td>${docente.dni}</td>
+                            <td>${estudiante.dni}</td>
                           </tr>
                           <tr>
                             <td><strong>Sexo</strong></td>
-                            <td>${docente.sexo}</td>
+                            <td>${estudiante.sexo}</td>
                           </tr>
                           <tr>
                             <td><strong>Celular</strong></td>
-                            <td>${docente.celular}</td>
+                            <td>${estudiante.celular}</td>
                           </tr>
                           <tr>
                             <td><strong>Correo</strong></td>
-                            <td>${docente.correo}</td>
+                            <td>${estudiante.correo}</td>
                           </tr>
                           <tr>
                             <td class="w-30"><strong>Fecha de nacimiento</strong></td>
-                            <td>${docente.fecha_nacimiento}</td>
+                            <td>${estudiante.fecha_nacimiento}</td>
                           </tr>
                           <tr>
                             <td><strong>Creado el</strong></td>
-                            <td>${new Date(docente.created_at).toLocaleDateString()}</td>
+                            <td>${new Date(
+                              estudiante.created_at
+                            ).toLocaleDateString()}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -375,7 +444,7 @@ export default {
               confirmButtonText: "Cerrar",
             });
           } else {
-            throw new Error("Docente no encontrado");
+            throw new Error("estudiante no encontrado");
           }
         })
         .catch((error) => {

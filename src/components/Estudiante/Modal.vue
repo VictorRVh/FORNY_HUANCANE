@@ -5,13 +5,13 @@
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title text-center w-100">
-            {{ editMode ? "Editar Docente" : "Registrar Docente" }}
+            {{ editMode ? "Editar estudiante" : "Registrar estudiante" }}
           </h4>
           <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
 
         <!-- Form -->
-        <Form @submit="submitDocente">
+        <Form @submit="submitestudiante">
           <!-- Modal Body -->
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -20,8 +20,8 @@
                 type="text"
                 class="form-control"
                 id="nombre"
-                v-model="docente.nombre"
-                placeholder="Nombre completo del Docente"
+                v-model="estudiante.nombre"
+                placeholder="Nombre completo del estudiante"
                 name="nombre"
                 :rules="'required|word'"
               />
@@ -34,7 +34,7 @@
                 type="text"
                 class="form-control"
                 id="apellido_paterno"
-                v-model="docente.apellido_paterno"
+                v-model="estudiante.apellido_paterno"
                 placeholder="Apellido Paterno"
                 name="apellido_paterno"
                 :rules="'required|word'"
@@ -48,7 +48,7 @@
                 type="text"
                 class="form-control"
                 id="apellido_materno"
-                v-model="docente.apellido_materno"
+                v-model="estudiante.apellido_materno"
                 placeholder="Apellido Materno"
                 name="apellido_materno"
                 :rules="'required|word'"
@@ -62,8 +62,8 @@
                 type="text"
                 class="form-control"
                 id="dni"
-                v-model="docente.dni"
-                placeholder="DNI del docente"
+                v-model="estudiante.dni"
+                placeholder="DNI del estudiante"
                 name="dni"
                 :rules="'required|dni'"
               />
@@ -74,7 +74,7 @@
                 type="text"
                 class="form-control"
                 id="celular"
-                v-model="docente.celular"
+                v-model="estudiante.celular"
                 placeholder="Número de celular"
                 name="celular"
                 :rules="'required|celular'"
@@ -88,7 +88,7 @@
                 type="email"
                 class="form-control"
                 id="correo"
-                v-model="docente.correo"
+                v-model="estudiante.correo"
                 placeholder="Correo electrónico"
                 name="correo"
                 :rules="'required|email'"
@@ -102,7 +102,7 @@
                 as="select"
                 class="form-select form-control"
                 id="sexo"
-                v-model="docente.sexo"
+                v-model="estudiante.sexo"
                 name="sexo"
                 :rules="'required|sexo'"
               >
@@ -117,7 +117,7 @@
                 type="date"
                 class="form-control"
                 id="birthdate"
-                v-model="docente.fecha_nacimiento"
+                v-model="estudiante.fecha_nacimiento"
                 name="fecha_nacimiento"
                 :rules="'required|fecha_nacimiento'"
               />
@@ -155,14 +155,14 @@ export default {
       type: Boolean,
       default: false, // false para agregar, true para editar
     },
-    docenteToEdit: {
+    estudianteToEdit: {
       type:Object,
       default: null
     }
   },
   data() {
     return {
-      docente: {
+      estudiante: {
         nombre: "",
         apellido_paterno: "",
         apellido_materno: "",
@@ -176,46 +176,46 @@ export default {
   },
   mounted() {
     /*
-    if (this.editMode && this.docenteToEdit) {
-      this.docente = { ...this.docenteToEdit };
+    if (this.editMode && this.estudianteToEdit) {
+      this.estudiante = { ...this.estudianteToEdit };
     }
       */
-     if(this.docenteToEdit){
-        console.log("Editar",this.docenteToEdit)
-        this.docente.nombre =   this.docenteToEdit.nombre;
-        this.docente.apellido_paterno = this.docenteToEdit.apellido_paterno ;
-        this.docente.apellido_materno = this.docenteToEdit.apellido_materno;
-        this.docente.dni = this.docenteToEdit.dni;
-        this.docente.sexo = this.docenteToEdit.sexo;
-        this.docente.celular = this.docenteToEdit.celular;
-        this.docente.correo = this.docenteToEdit.correo;
-        this.docente.fecha_nacimiento = this.docenteToEdit.fecha_nacimiento;
+     if(this.estudianteToEdit){
+        console.log("Editar",this.estudianteToEdit)
+        this.estudiante.nombre =   this.estudianteToEdit.nombre;
+        this.estudiante.apellido_paterno = this.estudianteToEdit.apellido_paterno ;
+        this.estudiante.apellido_materno = this.estudianteToEdit.apellido_materno;
+        this.estudiante.dni = this.estudianteToEdit.dni;
+        this.estudiante.sexo = this.estudianteToEdit.sexo;
+        this.estudiante.celular = this.estudianteToEdit.celular;
+        this.estudiante.correo = this.estudianteToEdit.correo;
+        this.estudiante.fecha_nacimiento = this.estudianteToEdit.fecha_nacimiento;
      }
      else{
        console.log("crear")
      }
   },
   methods: {
-    submitDocente() {
+    submitestudiante() {
       const url = this.editMode
-        ? `http://127.0.0.1:8000/api/teacher/${this.docenteToEdit.dni}`
-        : "http://127.0.0.1:8000/api/teacher";
+        ? `http://127.0.0.1:8000/api/students/${this.estudianteToEdit.dni}`
+        : "http://127.0.0.1:8000/api/students";
       const method = this.editMode ? "PUT" : "POST";
       
-      console.log("DATOS ENVIADOS",this.docente)
+      console.log("DATOS ENVIADOS",this.estudiante)
 
       fetch(url, {
         method: method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(this.docente),
+        body: JSON.stringify(this.estudiante),
       })
         .then((response) => response.json())
         .then((datosRespuesta) => {
           console.log(datosRespuesta);
           this.alert_save();
-          this.docente = {
+          this.estudiante = {
             nombre: "",
             apellido_paterno: "",
             apellido_materno: "",

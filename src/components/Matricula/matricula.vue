@@ -27,7 +27,6 @@
           <label for="turnoId" class="form-label">Turno</label>
           <Field as="select" v-model="matricula.turnoId" name="turnoId" id="turnoId" class="form-select">
             <option value="" disabled>Seleccionar Turno</option>
-            <option value="N">Noche</option>
             <option value="T">Tarde</option>
             <option value="M">Mañana</option>
           </Field>
@@ -149,7 +148,7 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
           this.matricula.estudianteNombre = `${estudiante.nombre} ${estudiante.apellido_paterno} ${estudiante.apellido_materno}`;
-          this.matricula.codigo = `${estudiante.codigo_estudiante}`;
+          this.matricula.codigo = `${estudiante.dni}`;
         } else {
           this.estudianteCodigo = ""; // Limpiar el código de estudiante si se cancela
         }
