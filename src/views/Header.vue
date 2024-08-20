@@ -12,6 +12,6 @@
         
       }
       .nav_header{
-        background:#92173339;
+        background:#ffffff;
       }
 </style>

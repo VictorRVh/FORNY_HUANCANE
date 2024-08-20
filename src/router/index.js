@@ -31,7 +31,11 @@ const router = createRouter({
     {
       path: '/Estudiante',
       name: 'Estudiante',
+<<<<<<< HEAD
       component: () => import('../components/Estudiante/ListEstudiante.vue')
+=======
+      component: () => import('../components/Estudiante/ListaEstudiantes.vue')
+>>>>>>> 6ae795dc6aa13ee68f4cf6eea07cf5e7c3f6984d
     },
     {
       path: '/Docente',
