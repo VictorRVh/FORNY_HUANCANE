@@ -1,6 +1,9 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
+
+// FUNCION PARA GENERAR NOMINAL NORMAL
+
 export function generateNominaPDF(data) {
   const doc = new jsPDF();
 
@@ -92,18 +95,18 @@ export function generateNominaPDF(data) {
         { content: "MÓDULO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: data.modulo_formativo, colSpan: 3, styles: { lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: "RESOLUCIÓN DIRECTORIAL", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: "RD N° 07592-2024-UGEL", colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: "RD N° 07592-2024-UGEL 06", colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "CICLO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: "AUXILIAR TÉCNICO", colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         ""
       ],
       [
         { content: "FECHA DE INICIO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.fecha_inicio, colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.fecha_inicio ? data.fecha_inicio.split('-').reverse().join('-') : 'Sin fecha', colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "FECHA DE TERMINO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.fecha_fin, colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.fecha_fin ? data.fecha_fin.split('-').reverse().join('-') : 'Sin fecha', colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "TURNO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.turno || 'noche', colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.turno, colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "SECCIÓN", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: data.seccion, colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         ""
@@ -133,7 +136,7 @@ export function generateNominaPDF(data) {
       estudiante.codigo_matricula,
       estudiante.apellidos_nombres,
       estudiante.sexo,
-      estudiante.fecha_nacimiento,
+      estudiante.fecha_nacimiento.split('-').reverse().join('-'),
       estudiante.condicion,
       data.total_unidades_didacticas,
       data.suma_creditos
@@ -173,6 +176,91 @@ export function generateNominaPDF(data) {
     }
   });
 
+
+  // Cabeceras y datos para la primera tabla
+  const headers1 = ["Hombres", "Mujeres", "TOTAL"];
+  const data1 = [
+    [{ content: data.numero_hombres, styles: { halign: 'center' } }, { content: data.numero_mujeres, styles: { halign: 'center' } }, { content: data.numero_mujeres + data.numero_hombres, styles: { halign: 'center', fillColor: [192, 192, 192] } }]
+  ];
+
+  // Cabeceras y datos para la segunda tabla
+  const headers2 = ["Gratuitos", "Pagantes", "Becarios", "TOTAL"];
+  const data2 = [
+    [{ content: data.condicion_g, styles: { halign: 'center' } }, { content: data.condicion_p, styles: { halign: 'center' } }, { content: data.condicion_b, styles: { halign: 'center' } }, { content: data.numero_mujeres + data.numero_hombres, styles: { halign: 'center', fillColor: [192, 192, 192] } }]
+  ];
+
+  // Añadir un espacio entre la tabla de estudiantes y las tablas de resumen
+  const startYForResumenTables = doc.lastAutoTable.finalY + 20; // Añadir 20 unidades de espacio
+
+  // Imprimir la primera tabla de resumen
+  doc.autoTable({
+    startY: startYForResumenTables, // Posición Y de inicio
+    head: [headers1],
+    body: data1,
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      halign: 'center',
+      valign: 'middle',
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      lineWidth: 0.25,
+      lineColor: [0, 0, 0]
+    },
+    headStyles: {
+      fontSize: 6,
+      fillColor: [192, 192, 192], // Color gris para las cabeceras
+      textColor: [0, 0, 0],
+      fontStyle: 'bold'
+    },
+    margin: { top: 5, bottom: 5 },
+    columnStyles: {
+      0: { cellWidth: 15 }, // Columna "Hombres"
+      1: { cellWidth: 15 }, // Columna "Mujeres"
+      2: { cellWidth: 20 }, // Columna "TOTAL"
+    },
+    tableWidth: 'wrap' // Ajusta la tabla al contenido
+  });
+
+  // Imprimir la segunda tabla de resumen
+  doc.autoTable({
+    startY: doc.lastAutoTable.finalY + 5, // Posición Y de inicio después de la primera tabla de resumen
+    head: [headers2],
+    body: data2,
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      halign: 'center',
+      valign: 'middle',
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      lineWidth: 0.25,
+      lineColor: [0, 0, 0]
+    },
+    headStyles: {
+      fontSize: 6,
+      fillColor: [192, 192, 192], // Color gris para las cabeceras
+      textColor: [0, 0, 0],
+      fontStyle: 'bold'
+    },
+    margin: { top: 5, bottom: 5 },
+    columnStyles: {
+      0: { cellWidth: 15 }, // Columna "Hombres"
+      1: { cellWidth: 15 }, // Columna "Mujeres"
+      2: { cellWidth: 20 }, // Columna "TOTAL"
+    },
+    tableWidth: 'wrap' // Ajusta la tabla al contenido
+  });
+
+
+  // Obtener la posición final de la segunda tabla
+  let secondTableFinalY = doc.lastAutoTable.finalY + 10; // Añadir un espacio adicional de 10 unidades
+
+  // Añadir la fecha actual debajo de las tablas
+  const currentDate = new Date().toLocaleDateString(); // Obtener la fecha actual en formato local
+  doc.setFontSize(10); // Establecer el tamaño de fuente
+  doc.text(`Fecha: ${currentDate}`, 15, secondTableFinalY); // Ajustar la posición (X: 15, Y: debajo de la segunda tabla)
+
   // Obtener el PDF como un Blob
   const pdfBlob = doc.output('blob');
 
@@ -184,6 +272,7 @@ export function generateNominaPDF(data) {
 }
 
 
+// FUNCION PARA GENERAR FICHA DE MATRICULA
 
 export function generatePdfMatricula(data) {
   const doc = new jsPDF();
@@ -252,7 +341,7 @@ export function generatePdfMatricula(data) {
         { content: "Módulo Formativo", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: data.especialidad.modulo_formativo, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "Periódo de Clase", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.unidades_didacticas.fecha_inicio + " al " + data.unidades_didacticas.fecha_fin, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.unidades_didacticas.fecha_inicio.split('-').reverse().join('-') + " al " + data.unidades_didacticas.fecha_fin.split('-').reverse().join('-'), styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         ""
       ],
       [
@@ -334,55 +423,6 @@ export function generatePdfMatricula(data) {
   });
 
 
-  // // CABECERA 3ERA
-  // const headerUnitsSub = [
-  //   [
-  //     { content: 'UNIDADES DIDACTICAS DE SUBSANACIÓN', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //   ],
-  //   [
-  //     { content: 'N°', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: 'UNIDAD DIDÁCTICA', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: 'CRÉDITO', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: 'HORA', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: 'CONDICIÓN', styles: { fillColor: [122, 0, 25], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //   ],
-  //   [
-  //     { content: '', styles: { fillColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: '', styles: { fillColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: '', styles: { fillColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: '', styles: { fillColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: '', styles: { fillColor: [0, 0, 0], halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //   ]
-  // ];
-
-  // // 3ERA TABLA
-  // doc.autoTable({
-  //   startY: 30,
-  //   head: headerUnitsSub,
-  //   body: [
-  //     [{ content: "", styles: { halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } }, // Numeración
-  //     { content: "", styles: { halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: "", styles: { halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: "", styles: { halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } },
-  //     { content: "", styles: { halign: 'center', lineWidth: 0.5, lineColor: [0, 0, 0] } }],
-  //   ],
-  //   theme: 'plain',
-  //   styles: {
-  //     fontSize: 10,
-  //     cellPadding: 2,
-  //     halign: 'center',
-  //     valign: 'middle',
-  //   },
-  //   margin: { top: 10, bottom: 10 },
-  //   columnStyles: {
-  //     0: { cellWidth: 'auto' }, // Configuración de la columna de numeración
-  //     1: { cellWidth: 'auto' },
-  //     2: { cellWidth: 'auto' },
-  //     3: { cellWidth: 'auto' },
-  //     4: { cellWidth: 'auto' }
-  //   }
-  // });
-
   // Agregar las líneas para las firmas al final del documento
   const yPosition = doc.lastAutoTable.finalY + 25; // Ajusta el margen según sea necesario
 
@@ -406,6 +446,8 @@ export function generatePdfMatricula(data) {
   window.open(pdfUrl, '_blank');
 }
 
+
+// FUNCION PARA GENERAR NOMINAL DE UGEL
 
 export function reporteNominaUgel(data) {
   const doc = new jsPDF('l', 'mm', 'a4'); // 'l' para orientación horizontal
@@ -452,9 +494,12 @@ export function reporteNominaUgel(data) {
     estudiante.dni,
     estudiante.apellido_paterno.toUpperCase(),
     estudiante.apellido_materno.toUpperCase(),
-    estudiante.nombre.charAt(0).toUpperCase() + estudiante.nombre.slice(1).toLowerCase(), // Inicial en mayúscula, resto en minúscula
+    estudiante.nombre
+      .split(' ')
+      .map(nombre => nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase())
+      .join(' '),
     estudiante.sexo,
-    estudiante.fecha_nacimiento
+    estudiante.fecha_nacimiento.split('-').reverse().join('-')
   ]);
 
   // Imprimir el título de la tabla
