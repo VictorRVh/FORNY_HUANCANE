@@ -479,9 +479,16 @@ export default {
 .btn_edit a {
   cursor: pointer;
 }
+.btn_edit {
+  position: relative;
+}
 
 .dropdown-menu {
-  margin-top: 50px;
-  margin-left: -50px;
+  position: absolute;
+  left: -100px;
+  right: 0;
+  margin: auto;
+  width: 100px;
+  top: 58px;
 }
 </style>
