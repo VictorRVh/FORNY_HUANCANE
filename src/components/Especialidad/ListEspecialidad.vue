@@ -90,7 +90,10 @@ export default {
     async imprimirNomina(index, formato) {
       
       const especialidadId = this.filteredEspecialidades[index].programa_estudio;
-      const url = `http://127.0.0.1:8000/api/especialidad/${especialidadId}/estudiantes`;
+
+      // CHIVICTOR EN ESTE CASO ESTA HACIENDO LA CONSULTA SOLO PARA TURNO TARDE, CUANDO HAYA LOS BOTONES YA LO CAMBIAS
+      const especialidadTurno = 'T'
+      const url = `http://127.0.0.1:8000/api/especialidad/${especialidadId}/estudiantes/${especialidadTurno}`;
 
       try {
         const response = await fetch(url);

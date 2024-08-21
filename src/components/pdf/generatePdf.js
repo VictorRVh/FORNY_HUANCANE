@@ -1,12 +1,6 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-// const unidadesDidacticas = [
-//   { unidad: "Unidad 1", credito: "2", hora: "30", condicion: "Aprobado" },
-//   { unidad: "Unidad 2", credito: "3", hora: "45", condicion: "Aprobado" },
-//   // Agrega más unidades didácticas aquí
-// ];
-
 export function generateNominaPDF(data) {
   const doc = new jsPDF();
 
@@ -96,7 +90,7 @@ export function generateNominaPDF(data) {
       ],
       [
         { content: "MÓDULO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.nombres_unidades_didacticas, colSpan: 3, styles: { lineWidth: 0.25, lineColor: [0, 0, 0] } },
+        { content: data.modulo_formativo, colSpan: 3, styles: { lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: "RESOLUCIÓN DIRECTORIAL", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: "RD N° 07592-2024-UGEL", colSpan: 1, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "CICLO", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
@@ -132,16 +126,19 @@ export function generateNominaPDF(data) {
   // Definir las columnas y los datos de la tabla
   const tableColumn = ["ID", "Código de Matrícula", "Apellidos y Nombres", "Sexo", "Fecha de Nacimiento", 'Condición (G-P-B)', "N° de Unidades Didácticas", "N° de Créditos"];
 
-  const tableRows = data.estudiantes.map((estudiante, index) => [
-    index + 1, // ID
-    estudiante.codigo_matricula,
-    estudiante.apellidos_nombres,
-    estudiante.sexo,
-    estudiante.fecha_nacimiento,
-    'G',
-    data.total_unidades_didacticas,
-    data.suma_creditos
-  ]);
+  const tableRows = data.estudiantes.map((estudiante, index) => {
+
+    return [
+      index + 1, // ID
+      estudiante.codigo_matricula,
+      estudiante.apellidos_nombres,
+      estudiante.sexo,
+      estudiante.fecha_nacimiento,
+      estudiante.condicion,
+      data.total_unidades_didacticas,
+      data.suma_creditos
+    ];
+  });
 
   // Imprimir la tabla de estudiantes
   doc.autoTable({
@@ -253,7 +250,7 @@ export function generatePdfMatricula(data) {
       ],
       [
         { content: "Módulo Formativo", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.unidades_didacticas.nombres_unidades, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.especialidad.modulo_formativo, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         { content: "Periódo de Clase", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
         { content: data.unidades_didacticas.fecha_inicio + " al " + data.unidades_didacticas.fecha_fin, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         ""
@@ -274,7 +271,7 @@ export function generatePdfMatricula(data) {
       ],
       [
         { content: "Nombres y Apellidos", styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], lineWidth: 0.25, lineColor: [0, 0, 0] } },
-        { content: data.nombre_completo.toUpperCase(), colSpan: 3, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
+        { content: data.nombre_completo, colSpan: 3, styles: { lineWidth: 0.25, lineColor: [0, 0, 0], halign: 'center' } },
         ""
       ],
     ],
@@ -297,7 +294,8 @@ export function generatePdfMatricula(data) {
   });
 
   doc.setFontSize(14);
-  doc.text("UNIDADES DIDACTICAS", 105, 120, { align: "center" });
+  doc.text("UNIDADES DIDACTICAS", 105, doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 125, { align: "center" });
+
 
   const headerUnits = [
     { content: 'N°', styles: { fillColor: [200, 200, 200], textColor: [0, 0, 0], halign: 'center', lineWidth: 0.25, lineColor: [0, 0, 0] } },
@@ -309,7 +307,7 @@ export function generatePdfMatricula(data) {
 
   // 2DA TABLA
   doc.autoTable({
-    startY: doc.lastAutoTable.finalY + 10,
+    startY: doc.lastAutoTable.finalY + 15,
     head: [headerUnits],
     body: data.unidades_didacticas.detalles.map((unidad, index) => [
       { content: (index + 1).toString(), styles: { halign: 'center', lineWidth: 0.25, lineColor: [0, 0, 0] } }, // Numeración
@@ -386,7 +384,7 @@ export function generatePdfMatricula(data) {
   // });
 
   // Agregar las líneas para las firmas al final del documento
-  const yPosition = doc.lastAutoTable.finalY + 20; // Ajusta el margen según sea necesario
+  const yPosition = doc.lastAutoTable.finalY + 25; // Ajusta el margen según sea necesario
 
   // Línea para la firma del director
   doc.setFontSize(12);
@@ -428,9 +426,9 @@ export function reporteNominaUgel(data) {
 
 
   const headers = [
-    "N°", "UGEL", "CODIGO MOD", "NOMBRE DEL CETPRO", "PROGRAMA DE ESTUDIOS",
-    "CICLO AUXILIAR", "N DE RESOLUCION QUE AUTORIZA EL PROGRAMA",
-    "MODULO DEL PROGRAMA DE ESTUDIOS", "N DNI (MATRICULADO)",
+    "N°", "UGEL", "CODIGO MODULAR", "NOMBRE DEL CETPRO", "PROGRAMA DE ESTUDIOS",
+    "CICLO", "N° DE RESOLUCION QUE AUTORIZA EL PROGRAMA DE ESTUDIO",
+    "MODULO DEL PROGRAMA DE ESTUDIOS", "TIPO DE DOCUMENTO", "N° DNI",
     "APELLIDO PATERNO", "APELLIDO MATERNO", "NOMBRES",
     "SEXO", "FECHA DE NACIMIENTO"
   ];
@@ -449,11 +447,12 @@ export function reporteNominaUgel(data) {
   const tableRows = data.estudiantes.map((estudiante, index) => [
     (index + 1).toString(), // Agregar el iterador (numeración) en la primera columna
     ...staticData.slice(0, 6), // Copia los datos estáticos
-    estudiante.unidades_didacticas,
+    data.modulo_formativo,
+    "DNI",
     estudiante.dni,
-    estudiante.apellido_paterno,
-    estudiante.apellido_materno,
-    estudiante.nombre,
+    estudiante.apellido_paterno.toUpperCase(),
+    estudiante.apellido_materno.toUpperCase(),
+    estudiante.nombre.charAt(0).toUpperCase() + estudiante.nombre.slice(1).toLowerCase(), // Inicial en mayúscula, resto en minúscula
     estudiante.sexo,
     estudiante.fecha_nacimiento
   ]);
