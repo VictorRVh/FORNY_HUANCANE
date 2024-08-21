@@ -13,9 +13,9 @@
         />
         <button class="btn btn-primary">Buscar</button>
       </div>
-      <div class="input-group mb-3 w-50">
-        <div class="ml-5 mr-5">
-          <label for="especialidadId" class="form-label">Especialidad</label>
+      <div class=" w-50 d-flex justify-content-center">
+        <div class="">
+          <label for="especialidadId" class="form-label text-primary"><b>Especialidad</b></label>
           <Field
             as="select"
             v-model="especialidadId.especialidad"
@@ -34,9 +34,10 @@
             </option>
           </Field>
         </div>
-        <div>
-          <label for="turnoId" class="form-label">Turno</label>
-          <Field as="select" v-model="especialidadId.turno" name="turnoId" id="turnoId" class="form-select"  @change="updateDocente">
+        <div class="m-4">    </div>
+        <div class="ml-3">
+          <label for="turnoId" class="form-label text-primary"><b>Turno</b></label>
+          <Field as="select" v-model="especialidadId.turno" name="turnoId" id="turnoId" class="form-select "  @change="updateDocente">
             <option value="" disabled>Seleccionar Turno</option>
             <option value="M">Mañana</option>
             <option value="T">Tarde</option>
@@ -465,7 +466,7 @@ export default {
 
 <style scoped>
 .custom-table-wrapper {
-  max-height: 400px;
+  height: 70vh;
 }
 
 .sticky-header {
@@ -477,9 +478,6 @@ export default {
 
 .btn_edit a {
   cursor: pointer;
-}
-.btn_edit {
-  display: flex;
 }
 
 .dropdown-menu {

@@ -396,7 +396,7 @@ export default {
 
 <style scoped>
 .custom-table-wrapper {
-  max-height: 400px;
+  height: 80vh;
 }
 
 .sticky-header {
@@ -408,9 +408,6 @@ export default {
 
 .btn_edit a {
   cursor: pointer;
-}
-.btn_edit {
-  display: flex;
 }
 
 .dropdown-menu {
