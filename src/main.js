@@ -66,6 +66,16 @@ defineRule('celular', (value) => {
     return true;
 });
 
+// Regla par 'números" 
+defineRule('numeric', (value) => {
+    // Patrón que asegura que el valor sea numérico
+    const numericPattern = /^[0-9]+$/;
+    if (!numericPattern.test(value)) {
+        return 'El campo debe contener solo números';
+    }
+    return true;
+});
+
 // Regla para 'correo' (correo electrónico válido)
 defineRule('email', (value) => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

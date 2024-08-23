@@ -13,7 +13,7 @@
         />
         <button class="btn btn-primary">Buscar</button>
       </div>
-      <div class=" w-50 d-flex justify-content-center">
+      <div v-if="mostrarFiltros" class=" w-50 d-flex justify-content-center">
         <div class="">
           <label for="especialidadId" class="form-label text-primary"><b>Especialidad</b></label>
           <Field
@@ -45,6 +45,11 @@
         </div>
       </div>
       <div class="input-group mb-3 w-25 d-flex">
+
+        <button class="btn btn-primary" @click="mostrarFiltros = !mostrarFiltros">
+          Mostrar Matriculados
+        </button>
+
         <button class="btn btn-primary" @click="openModal">Agregar</button>
         <Modal
           :key="estudianteSeleccionado"
@@ -54,10 +59,6 @@
           @close-modal="closeModal"
           @estudianteActualizado="obtenerestudiantes"
         />
-
-        <button class="btn btn-primary ml-5" @click="exportar">
-          <icono icon="download" />
-        </button>
       </div>
     </div>
 
@@ -181,6 +182,7 @@ export default {
   data() {
     return {
       filterField: "",
+      mostrarFiltros: false,
       showModal: false, // Renombrado
       showDropdown: {},
       estudianteEspecialidad:[],

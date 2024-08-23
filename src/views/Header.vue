@@ -1,6 +1,6 @@
 <template>
 
-    <div class=" p-4 nav_header">
+    <div class=" nav_header">
         <img src="/img/huancaneOne.png" alt="">
     </div>
 
@@ -12,6 +12,7 @@
         
       }
       .nav_header{
+        padding: 30px;
         background:#92173339;
       }
 </style>
