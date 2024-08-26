@@ -179,7 +179,16 @@ export default {
         });
     },
     filter(docente) {
-      return docente.nombre.toLowerCase().includes(this.filterField.toLowerCase());
+      if (!this.filterField) {
+        return true; // Si no hay filtro, muestra todos los estudiantes
+      }
+
+      // Filtra por nombre o DNI
+      const filterText = this.filterField.toLowerCase();
+      return (
+        docente.nombre.toLowerCase().includes(filterText) ||
+        docente.dni.includes(this.filterField)
+      );
     },
     openModal() {
       this.editMode = false; // Modo de agregar

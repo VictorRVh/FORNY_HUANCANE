@@ -11,7 +11,7 @@
         </div>
 
         <!-- Form -->
-        <Form @submit="submitestudiante">
+        <Form @submit="submitestudiante" ref="formRef">
           <!-- Modal Body -->
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -29,7 +29,9 @@
             </div>
 
             <div class="input-group mb-3">
-              <label for="apellido_paterno" class="input-group-text">Apellido Paterno</label>
+              <label for="apellido_paterno" class="input-group-text"
+                >Apellido Paterno</label
+              >
               <Field
                 type="text"
                 class="form-control"
@@ -43,7 +45,9 @@
             </div>
 
             <div class="input-group mb-3">
-              <label for="apellido_materno" class="input-group-text">Apellido Materno</label>
+              <label for="apellido_materno" class="input-group-text"
+                >Apellido Materno</label
+              >
               <Field
                 type="text"
                 class="form-control"
@@ -141,7 +145,7 @@
 </template>
 
 <script>
-import { Form, Field, ErrorMessage, defineRule, configure } from "vee-validate";
+import { Form, Field, ErrorMessage, useForm } from "vee-validate";
 import { localize } from "@vee-validate/i18n";
 import Swal from "sweetalert2";
 
@@ -156,9 +160,9 @@ export default {
       default: false, // false para agregar, true para editar
     },
     estudianteToEdit: {
-      type:Object,
-      default: null
-    }
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
@@ -180,20 +184,19 @@ export default {
       this.estudiante = { ...this.estudianteToEdit };
     }
       */
-     if(this.estudianteToEdit){
-        console.log("Editar",this.estudianteToEdit)
-        this.estudiante.nombre =   this.estudianteToEdit.nombre;
-        this.estudiante.apellido_paterno = this.estudianteToEdit.apellido_paterno ;
-        this.estudiante.apellido_materno = this.estudianteToEdit.apellido_materno;
-        this.estudiante.dni = this.estudianteToEdit.dni;
-        this.estudiante.sexo = this.estudianteToEdit.sexo;
-        this.estudiante.celular = this.estudianteToEdit.celular;
-        this.estudiante.correo = this.estudianteToEdit.correo;
-        this.estudiante.fecha_nacimiento = this.estudianteToEdit.fecha_nacimiento;
-     }
-     else{
-       console.log("crear")
-     }
+    if (this.estudianteToEdit) {
+      console.log("Editar", this.estudianteToEdit);
+      this.estudiante.nombre = this.estudianteToEdit.nombre;
+      this.estudiante.apellido_paterno = this.estudianteToEdit.apellido_paterno;
+      this.estudiante.apellido_materno = this.estudianteToEdit.apellido_materno;
+      this.estudiante.dni = this.estudianteToEdit.dni;
+      this.estudiante.sexo = this.estudianteToEdit.sexo;
+      this.estudiante.celular = this.estudianteToEdit.celular;
+      this.estudiante.correo = this.estudianteToEdit.correo;
+      this.estudiante.fecha_nacimiento = this.estudianteToEdit.fecha_nacimiento;
+    } else {
+      console.log("crear");
+    }
   },
   methods: {
     submitestudiante() {
@@ -201,8 +204,8 @@ export default {
         ? `http://127.0.0.1:8000/api/students/${this.estudianteToEdit.dni}`
         : "http://127.0.0.1:8000/api/students";
       const method = this.editMode ? "PUT" : "POST";
-      
-      console.log("DATOS ENVIADOS",this.estudiante)
+
+      console.log("DATOS ENVIADOS", this.estudiante);
 
       fetch(url, {
         method: method,
@@ -215,26 +218,33 @@ export default {
         .then((datosRespuesta) => {
           console.log(datosRespuesta);
           this.alert_save();
-          this.estudiante = {
-            nombre: "",
-            apellido_paterno: "",
-            apellido_materno: "",
-            dni: "",
-            sexo: "",
-            celular: "",
-            correo: "",
-            fecha_nacimiento: "",
-          };
+          // Limpia las validaciones
+          console.log("ahroatoca limpiar")
+          this.resetForm();
         })
         .catch((error) => {
           alert(`Error: ${error.message}`);
         });
     },
+    resetForm() {
+      console.log("entro areset")
+      this.$refs.formRef.resetForm();
+      this.estudiante = {
+        nombre: "",
+        apellido_paterno: "",
+        apellido_materno: "",
+        dni: "",
+        sexo: "",
+        celular: "",
+        correo: "",
+        fecha_nacimiento: "",
+      };
+    },
     alert_save() {
       Swal.fire({
         position: "center",
         icon: "success",
-        title: this.editMode?"Elemento Actulizado":"Elemento Creado",
+        title: this.editMode ? "Elemento Actulizado" : "Elemento Creado",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -251,12 +261,11 @@ export default {
   color: red;
   font-size: 0.8em;
   margin-top: 34px;
-  
 }
-.celular_error,.fecha_error{
-
+.celular_error,
+.fecha_error {
   margin-right: 30px;
- 
+
   width: 80%;
   text-align: end;
 }

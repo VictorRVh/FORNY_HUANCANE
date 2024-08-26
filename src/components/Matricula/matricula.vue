@@ -1,7 +1,12 @@
 <template>
-  <div class="container mt-5">
+  <div class="container 1t-5">
     <div class="search-estudent input-group w-25">
-      <input v-model="estudianteCodigo" type="text" class="form-control" placeholder="DNI de estudiante" />
+      <input
+        v-model="estudianteCodigo"
+        type="text"
+        class="form-control"
+        placeholder="DNI de estudiante"
+      />
       <button class="input-group-text btn btn-primary" @click="fetchEstudiante">
         Buscar
       </button>
@@ -9,25 +14,50 @@
 
     <h2 class="text-center mb-4 text-primary">Registrar Matrícula</h2>
 
-    <Form @submit="submitMatricula" class="form_estudent border m-auto p-3 w-50">
+    <Form
+      @submit="submitMatricula"
+      class="form_estudent border m-auto p-3 w-50"
+      ref="formRef"
+    >
       <!-- Estudiante -->
       <div class="mb-3">
         <label for="nameEst" class="form-label">Estudiante</label>
-        <Field v-model="matricula.estudianteNombre" name="estudianteNombre" type="text" id="nameEst"
-          class="form-control" placeholder="Nombre del estudiante" readonly />
+        <Field
+          v-model="matricula.estudianteNombre"
+          name="estudianteNombre"
+          type="text"
+          id="nameEst"
+          class="form-control"
+          placeholder="Nombre del estudiante"
+          readonly
+        />
         <ErrorMessage name="estudianteNombre" class="error_required" />
       </div>
       <!-- Turno, Créditos y Condición -->
       <div class="row mb-3">
         <div class="col-md-4">
           <label for="estudianteId" class="form-label">Código Estudiante</label>
-          <Field v-model="matricula.codigo" name="estudianteCodigo" type="text" id="estudianteId" class="form-control"
-            placeholder="Código" readonly />
+          <Field
+            v-model="matricula.codigo"
+            name="estudianteCodigo"
+            type="text"
+            id="estudianteId"
+            class="form-control"
+            placeholder="Código"
+            readonly
+          />
           <ErrorMessage name="estudianteCodigo" class="error_required" />
         </div>
         <div class="col-md-4">
           <label for="turnoId" class="form-label">Turno</label>
-          <Field as="select" v-model="matricula.turnoId" name="turnoId" id="turnoId" class="form-select" :rules="'required'">
+          <Field
+            as="select"
+            v-model="matricula.turnoId"
+            name="turnoId"
+            id="turnoId"
+            class="form-select"
+            :rules="'required'"
+          >
             <option value="" disabled>Seleccionar Turno</option>
             <option value="T">Tarde</option>
             <option value="M">Mañana</option>
@@ -37,7 +67,14 @@
 
         <div class="col-md-4">
           <label for="condicionId" class="form-label">Condición</label>
-          <Field as="select" v-model="matricula.condicionId" name="condicionId" id="condicionId" class="form-select" :rules="'required'">
+          <Field
+            as="select"
+            v-model="matricula.condicionId"
+            name="condicionId"
+            id="condicionId"
+            class="form-select"
+            :rules="'required'"
+          >
             <option value="" disabled>Seleccionar Condición</option>
             <option value="G">Gratuita</option>
             <option value="B">Becado</option>
@@ -49,10 +86,21 @@
       <!-- Especialidad -->
       <div class="mb-3 aling_error">
         <label for="especialidadId" class="form-label">Especialidad</label>
-        <Field as="select" v-model="matricula.especialidadId" name="especialidadId" id="especialidadId"
-          class="form-select" @change="updateDocente" :rules="'required'">
+        <Field
+          as="select"
+          v-model="matricula.especialidadId"
+          name="especialidadId"
+          id="especialidadId"
+          class="form-select"
+          @change="updateDocente"
+          :rules="'required'"
+        >
           <option value="">Seleccionar Especialidad</option>
-          <option v-for="especialidad in especialidades" :key="especialidad.id" :value="especialidad.programa_estudio">
+          <option
+            v-for="especialidad in especialidades"
+            :key="especialidad.id"
+            :value="especialidad.programa_estudio"
+          >
             {{ especialidad.programa_estudio }}
           </option>
         </Field>
@@ -62,15 +110,30 @@
       <!-- Docente -->
       <div class="mb-3 aling_error">
         <label for="docenteId" class="form-label">Docente</label>
-        <Field v-model="matricula.docenteId" name="docenteId" type="text" id="docenteId" class="form-control"
-          placeholder="docente" readonly />
+        <Field
+          v-model="matricula.docenteId"
+          name="docenteId"
+          type="text"
+          id="docenteId"
+          class="form-control"
+          placeholder="docente"
+          readonly
+        />
         <ErrorMessage name="docenteId" class="error_required" />
       </div>
 
       <!-- Número de Recibo -->
       <div class="mb-3 aling_error">
         <label for="nroRecibo" class="form-label">Número de Recibo</label>
-        <Field v-model="matricula.nroRecibo" name="nroRecibo" type="text" id="nroRecibo" class="form-control" placeholder="Número del recibo" :rules="'required|numeric'" />
+        <Field
+          v-model="matricula.nroRecibo"
+          name="nroRecibo"
+          type="text"
+          id="nroRecibo"
+          class="form-control"
+          placeholder="Número del recibo"
+          :rules="'required|numeric'"
+        />
         <ErrorMessage name="nroRecibo" class="error_required" />
       </div>
 
@@ -86,7 +149,7 @@
 <script>
 import { Form, Field, ErrorMessage } from "vee-validate";
 import Swal from "sweetalert2";
-import { generatePdfMatricula } from '../pdf/generatePdf';
+import { generatePdfMatricula } from "../pdf/generatePdf";
 
 export default {
   components: {
@@ -99,10 +162,10 @@ export default {
       matricula: {
         estudianteNombre: "",
         codigo: "",
-        especialidadId: null,
-        turnoId: null,
-        docenteId: null,
-        condicionId: null,
+        especialidadId: "",
+        turnoId: "",
+        docenteId: "",
+        condicionId: "",
         nroRecibo: "",
       },
       estudianteCodigo: "",
@@ -180,13 +243,13 @@ export default {
     },
     submitMatricula() {
       let submidata = {
-        "codigo_estudiante_id": this.matricula.codigo,
-        "turno": this.matricula.turnoId,
-        "condicion": this.matricula.condicionId,
-        "programa_estudio_id": this.matricula.especialidadId,
-        "numero_recibo": this.matricula.nroRecibo,
+        codigo_estudiante_id: this.matricula.codigo,
+        turno: this.matricula.turnoId,
+        condicion: this.matricula.condicionId,
+        programa_estudio_id: this.matricula.especialidadId,
+        numero_recibo: this.matricula.nroRecibo,
       };
-      console.log(submidata)
+      console.log(submidata);
       fetch("http://127.0.0.1:8000/api/matricula", {
         method: "POST",
         headers: {
@@ -203,13 +266,18 @@ export default {
               const data = await response.json();
               generatePdfMatricula(data);
             } catch (error) {
-              console.error('Error fetching estudiantes:', error);
+              console.error("Error fetching estudiantes:", error);
             }
           } else {
-            return Promise.reject("Error al registrar matrícula");
+            const errorData = await response.json(); // Capturamos el cuerpo de la respuesta en JSON
+            return Promise.reject(errorData.message || "Error al registrar matrícula");
           }
+          console.log(response)
         })
-        .then(() => {
+        .then((data) => {
+          console.log(data);
+          this.resetForm();
+
           Swal.fire({
             icon: "success",
             title: "Éxito",
@@ -217,24 +285,44 @@ export default {
           });
         })
         .catch((error) => {
+         
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: error,
+            text: error, // Mostramos el mensaje de error capturado
           });
         });
+    },
+    resetForm() {
+      console.log("entro areset");
+      this.$refs.formRef.resetForm();
+      (this.matricula = {
+        estudianteNombre: "",
+        codigo: "",
+        especialidadId: "",
+        turnoId: "",
+        docenteId: "",
+        condicionId: "",
+        nroRecibo: "",
+      }),
+        (this.estudianteCodigo = "");
     },
   },
 };
 </script>
 
 <style scoped>
-.col-md-4,.aling_error{
-  position: relative
+.container {
+  overflow-y: auto;
+  height: 70vh;
+}
+.col-md-4,
+.aling_error {
+  position: relative;
 }
 .error_required {
   color: red;
   font-size: 12px;
-  top: 38px
+  top: 38px;
 }
 </style>

@@ -1,29 +1,42 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import Header from './views/Header.vue'
+import { RouterLink, RouterView, useRouter} from "vue-router";
+import { computed } from 'vue';
+import { useUserStore } from '@/stores/userStore';
 
-import Nav from './views/NavViews.vue'
+import Header from "./views/Header.vue";
+
+import Nav from "./views/NavViews.vue";
+
+
+
+const userStore = useUserStore();
+const isAuthenticated = computed(() => userStore.isAuthenticated);
+
 </script>
 
 <template>
-  <Header />
-  <div class="d-flex mb-3 contenido">
-    <!-- Barra de navegación -->
-    <aside class="nav-left">
-      <Nav />
-    </aside>
+  <div v-if="isAuthenticated" >
+    <Header />
+    <div class="d-flex mb-3 contenido">
+      <!-- Barra de navegación -->
+      <aside class="nav-left">
+        <Nav />
+      </aside>
 
-    <!-- Contenido principal -->
-    <main class="flex-grow-1">
-      <router-view />
-    </main>
+      <!-- Contenido principal -->
+      <main class="flex-grow-1">
+        <router-view />
+      </main>
+    </div>
   </div>
+
+  <router-view v-else/>
 
 </template>
 
 <style scoped>
 /* Estilos para el componente */
-.contenido{
+.contenido {
   height: 91vh;
 }
 .nav-left {

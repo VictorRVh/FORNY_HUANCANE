@@ -11,7 +11,7 @@
         </div>
 
         <!-- Form -->
-        <Form @submit="submitDocente">
+        <Form @submit="submitDocente" ref="formRef">
           <!-- Modal Body -->
           <div class="modal-body">
             <div class="input-group mb-3">
@@ -29,7 +29,9 @@
             </div>
 
             <div class="input-group mb-3">
-              <label for="apellido_paterno" class="input-group-text">Apellido Paterno</label>
+              <label for="apellido_paterno" class="input-group-text"
+                >Apellido Paterno</label
+              >
               <Field
                 type="text"
                 class="form-control"
@@ -43,7 +45,9 @@
             </div>
 
             <div class="input-group mb-3">
-              <label for="apellido_materno" class="input-group-text">Apellido Materno</label>
+              <label for="apellido_materno" class="input-group-text"
+                >Apellido Materno</label
+              >
               <Field
                 type="text"
                 class="form-control"
@@ -156,9 +160,9 @@ export default {
       default: false, // false para agregar, true para editar
     },
     docenteToEdit: {
-      type:Object,
-      default: null
-    }
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
@@ -180,20 +184,19 @@ export default {
       this.docente = { ...this.docenteToEdit };
     }
       */
-     if(this.docenteToEdit){
-        console.log("Editar",this.docenteToEdit)
-        this.docente.nombre =   this.docenteToEdit.nombre;
-        this.docente.apellido_paterno = this.docenteToEdit.apellido_paterno ;
-        this.docente.apellido_materno = this.docenteToEdit.apellido_materno;
-        this.docente.dni = this.docenteToEdit.dni;
-        this.docente.sexo = this.docenteToEdit.sexo;
-        this.docente.celular = this.docenteToEdit.celular;
-        this.docente.correo = this.docenteToEdit.correo;
-        this.docente.fecha_nacimiento = this.docenteToEdit.fecha_nacimiento;
-     }
-     else{
-       console.log("crear")
-     }
+    if (this.docenteToEdit) {
+      console.log("Editar", this.docenteToEdit);
+      this.docente.nombre = this.docenteToEdit.nombre;
+      this.docente.apellido_paterno = this.docenteToEdit.apellido_paterno;
+      this.docente.apellido_materno = this.docenteToEdit.apellido_materno;
+      this.docente.dni = this.docenteToEdit.dni;
+      this.docente.sexo = this.docenteToEdit.sexo;
+      this.docente.celular = this.docenteToEdit.celular;
+      this.docente.correo = this.docenteToEdit.correo;
+      this.docente.fecha_nacimiento = this.docenteToEdit.fecha_nacimiento;
+    } else {
+      console.log("crear");
+    }
   },
   methods: {
     submitDocente() {
@@ -201,8 +204,8 @@ export default {
         ? `http://127.0.0.1:8000/api/teacher/${this.docenteToEdit.dni}`
         : "http://127.0.0.1:8000/api/teacher";
       const method = this.editMode ? "PUT" : "POST";
-      
-      console.log("DATOS ENVIADOS",this.docente)
+
+      console.log("DATOS ENVIADOS", this.docente);
 
       fetch(url, {
         method: method,
@@ -215,26 +218,32 @@ export default {
         .then((datosRespuesta) => {
           console.log(datosRespuesta);
           this.alert_save();
-          this.docente = {
-            nombre: "",
-            apellido_paterno: "",
-            apellido_materno: "",
-            dni: "",
-            sexo: "",
-            celular: "",
-            correo: "",
-            fecha_nacimiento: "",
-          };
+          this.resetForm();
+          
         })
         .catch((error) => {
           alert(`Error: ${error.message}`);
         });
     },
+    resetForm() {
+      console.log("entro areset");
+      this.$refs.formRef.resetForm();
+      this.docente = {
+        nombre: "",
+        apellido_paterno: "",
+        apellido_materno: "",
+        dni: "",
+        sexo: "",
+        celular: "",
+        correo: "",
+        fecha_nacimiento: "",
+      };
+    },
     alert_save() {
       Swal.fire({
         position: "center",
         icon: "success",
-        title: this.editMode?"Elemento Actulizado":"Elemento Creado",
+        title: this.editMode ? "Elemento Actulizado" : "Elemento Creado",
         showConfirmButton: false,
         timer: 1500,
       });
@@ -251,12 +260,11 @@ export default {
   color: red;
   font-size: 0.8em;
   margin-top: 34px;
-  
 }
-.celular_error,.fecha_error{
-
+.celular_error,
+.fecha_error {
   margin-right: 30px;
- 
+
   width: 80%;
   text-align: end;
 }

@@ -10,6 +10,11 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import { Form, Field, ErrorMessage, defineRule, configure } from 'vee-validate';
 import { localize } from '@vee-validate/i18n';
 
+
+//  para la autenticación
+import { createPinia } from 'pinia';
+
+
 // Define las reglas manualmente
 defineRule('required', (value) => {
     if (!value || !value.length) {
@@ -128,9 +133,16 @@ configure({
     }),
 });
 
+
 library.add({...icono});
 
 const app = createApp(App);
+
+
+//pinia para autenticacion de estados
+const pinia = createPinia();
+app.use(pinia);
+
 
 app.use(router);
 app.component('icono', FontAwesomeIcon);

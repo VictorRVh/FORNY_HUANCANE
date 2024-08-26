@@ -13,9 +13,11 @@
         />
         <button class="btn btn-primary">Buscar</button>
       </div>
-      <div v-if="mostrarFiltros" class=" w-50 d-flex justify-content-center">
+      <div v-if="mostrarFiltros" class="w-50 d-flex justify-content-center">
         <div class="">
-          <label for="especialidadId" class="form-label text-primary"><b>Especialidad</b></label>
+          <label for="especialidadId" class="form-label text-primary"
+            ><b>Especialidad</b></label
+          >
           <Field
             as="select"
             v-model="especialidadId.especialidad"
@@ -34,10 +36,17 @@
             </option>
           </Field>
         </div>
-        <div class="m-4">    </div>
+        <div class="m-4"></div>
         <div class="ml-3">
           <label for="turnoId" class="form-label text-primary"><b>Turno</b></label>
-          <Field as="select" v-model="especialidadId.turno" name="turnoId" id="turnoId" class="form-select "  @change="updateDocente">
+          <Field
+            as="select"
+            v-model="especialidadId.turno"
+            name="turnoId"
+            id="turnoId"
+            class="form-select"
+            @change="updateDocente"
+          >
             <option value="" disabled>Seleccionar Turno</option>
             <option value="M">Mañana</option>
             <option value="T">Tarde</option>
@@ -45,12 +54,9 @@
         </div>
       </div>
       <div class="input-group mb-3 w-25 d-flex">
-
         <button class="btn btn-primary" @click="mostrarFiltros = !mostrarFiltros">
           Mostrar Matriculados
         </button>
-
-        <button class="btn btn-primary" @click="openModal">Agregar</button>
         <Modal
           :key="estudianteSeleccionado"
           :showModal="showModal"
@@ -59,6 +65,8 @@
           @close-modal="closeModal"
           @estudianteActualizado="obtenerestudiantes"
         />
+        <button class="btn btn-primary" @click="openModal">Agregar</button>
+        
       </div>
     </div>
 
@@ -185,10 +193,10 @@ export default {
       mostrarFiltros: false,
       showModal: false, // Renombrado
       showDropdown: {},
-      estudianteEspecialidad:[],
-      especialidadId:{
+      estudianteEspecialidad: [],
+      especialidadId: {
         turno: null,
-        especialidad :null
+        especialidad: null,
       },
       estudiantes: [],
       editMode: false,
@@ -217,39 +225,47 @@ export default {
           console.error("Error al obtener los estudiantes:", error);
         });
     },
-    obtenerEspecialidad(){
+    obtenerEspecialidad() {
       fetch("http://127.0.0.1:8000/api/especialidad")
         .then((response) => response.json())
         .then((data) => {
           this.estudianteEspecialidad = data.especialidades; // Accede al array de estudiantes en la respuesta
-         
         })
         .catch((error) => {
           console.error("Error al obtener los estudiantes:", error);
         });
     },
-    updateDocente(){
-       
-     if(this.especialidadId.especialidad.length>0 && this.especialidadId.turno.length>0 ){
-           
-       fetch(`http://127.0.0.1:8000/api/especialidad/${this.especialidadId.especialidad}/students/${this.especialidadId.turno}`)
-        .then((response) => response.json())
-        .then((data) => {
-          this.estudiantes = data.estudiantes; // Accede al array de estudiantes en la respuesta
-          console.log(this.estudiantes)
-          //this.estudiantesFiltrados = this.estudiantes;
-        })
-        .catch((error) => {
-          console.error("Error al obtener los estudiantes:", error);
-        });
-
-     }
-
-      
+    updateDocente() {
+      if (
+        this.especialidadId.especialidad.length > 0 &&
+        this.especialidadId.turno.length > 0
+      ) {
+        fetch(
+          `http://127.0.0.1:8000/api/especialidad/${this.especialidadId.especialidad}/students/${this.especialidadId.turno}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            this.estudiantes = data.estudiantes; // Accede al array de estudiantes en la respuesta
+            console.log(this.estudiantes);
+            //this.estudiantesFiltrados = this.estudiantes;
+          })
+          .catch((error) => {
+            console.error("Error al obtener los estudiantes:", error);
+          });
+      }
     },
 
     filter(estudiante) {
-      return estudiante.nombre.toLowerCase().includes(this.filterField.toLowerCase());
+      if (!this.filterField) {
+        return true; // Si no hay filtro, muestra todos los estudiantes
+      }
+
+      // Filtra por nombre o DNI
+      const filterText = this.filterField.toLowerCase();
+      return (
+        estudiante.nombre.toLowerCase().includes(filterText) ||
+        estudiante.dni.includes(this.filterField)
+      );
     },
     openModal() {
       this.editMode = false; // Modo de agregar
